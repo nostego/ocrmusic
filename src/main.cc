@@ -3,16 +3,18 @@
 #include <opencv/highgui.h>
 #include <vector>
 #include <algorithm>
+#include <cmath>
+
+#define EPSILON 0.00001
+#define MAX_ROT 1
 
 using namespace cv;
 
-// Not that x1 and x2 may not be accurated
 struct Line
 {
-  size_t x1;
-  size_t x2;
-  size_t y1;
-  size_t y2;
+  size_t y;
+  size_t h;
+  double angle;
 };
 
 void display(cv::Mat& img,
@@ -20,88 +22,112 @@ void display(cv::Mat& img,
 
 bool sort_line(Vec4i i, Vec4i j)
 {
-  return (i[1] < j[1]);
+  return (std::min(i[1], i[3]) < std::min(j[1], j[3]));
+}
+
+bool unique_line(Vec4i i, Vec4i j)
+{
+  return (std::min(i[1], i[3]) == std::min(j[1], j[3]));
 }
 
 std::vector<Vec4i> detect_lines(cv::Mat& img)
 {
   std::vector<Vec4i> lines;
   std::vector<Vec4i> ret;
+  std::vector<Line> mylines;
 
-  HoughLinesP(img, lines, 1, M_PI / 2.0, 50.0, 10.0);
+  HoughLinesP(img, lines, 1, M_PI / 2.0, 70.0, 10.0);
   for (size_t i = 0; i < lines.size(); ++i)
   {
-    if ((fabs(lines[i][1] - lines[i][3]) < 10) &&
-        (fabs(lines[i][0] - lines[i][2]) > img.size().width * 0.1))
+    if ((sqrt(pow(lines[i][0] - lines[i][2], 2.0) +
+              pow(lines[i][1] - lines[i][3], 2.0)) > img.size().width * 0.1) &&
+        ((180.0 / M_PI) * fabs(atan2(lines[i][3] - lines[i][1], lines[i][2] - lines[i][0])) <= MAX_ROT))
+    {
       ret.push_back(lines[i]);
+    }
   }
-  sort(ret.begin(), ret.end(), sort_line);
 
-  std::vector<Line> mylines;
   int lasty = -1;
-  int lasty2 = -1;
-  // L'idee est la mais le code est naze et faux
+
+  // Merge lines
+  sort(ret.begin(), ret.end(), sort_line);
   for (size_t i = 0; i < ret.size(); ++i)
   {
-    if ((lasty < 0) ||
-        ((fabs(lasty - ret[i][1]) > 2) &&
-         (fabs(lasty2 - ret[i][3]) > 2)))
-    {
-      Line n;
+    bool add = true;
 
-      if (ret[i][0] < ret[i][2])
+    for (size_t j = i + 1; j < ret.size(); ++j)
+      if (ret[i][1] == ret[j][1])
+        add = false;
+
+    if (add)
+    {
+      if ((lasty < 0) ||
+          (fabs(std::min(ret[i][1], ret[i][3]) - lasty) > 1))
       {
-        n.x1 = ret[i][0];
-        n.x2 = ret[i][2];
-        n.y1 = ret[i][1];
-        n.y2 = ret[i][3];
+        Line n;
+
+        n.angle = atan2(ret[i][3] - ret[i][1], ret[i][2] - ret[i][0]);
+        n.y = ret[i][1] - sin(n.angle) * ret[i][0];
+        n.h = 1;
+        mylines.push_back(n);
       }
       else
       {
-        n.x1 = ret[i][2];
-        n.x2 = ret[i][0];
-        n.y1 = ret[i][3];
-        n.y2 = ret[i][1];
+        ++mylines[mylines.size() - 1].h;
       }
-      mylines.push_back(n);
+      lasty = std::min(ret[i][1], ret[i][3]);
     }
+  }
+
+  // 5 lines pattern
+  double dist[4];
+
+  for (size_t i = 0; i < mylines.size() - 5;)
+  {
+    double mean = 0.0;
+    bool ok = true;
+
+    for (size_t k = 0; k < 4; ++k)
+    {
+      dist[k] = fabs((double)mylines[i + k].y -
+                     (double)mylines[i + k + 1].y);
+      mean += dist[k];
+    }
+    mean /= 4.0;
+
+    for (size_t k = 0; k < 4; ++k)
+    {
+      dist[k] -= mean;
+      if (dist[k] > 1.0)
+        ok = false;
+    }
+    if (ok)
+      i += 5;
     else
     {
-      mylines[mylines.size() - 1].y2 = ret[i][3];
-      mylines[mylines.size() - 1].x1 = ret[i][3];
+      mylines.erase(mylines.begin() + i);
     }
-    lasty = ret[i][1];
-    lasty2 = ret[i][3];
   }
 
   ret.clear();
   for (size_t i = 0; i < mylines.size(); ++i)
   {
-    Vec4i l;
+    for (size_t hi = 0; hi < mylines[i].h; ++hi)
+    {
+      Vec4i l;
 
-    l[0] = mylines[i].x1;
-    l[2] = mylines[i].x2;
-    /*
-      if (mylines[i].x1 < mylines[i].x2)
-      {
       l[0] = 0;
+      l[1] = mylines[i].y + hi;
       l[2] = img.size().width;
-      }
-      else
-      {
-      l[0] = img.size().width;
-      l[2] = 0;
-      }
-    */
-
-    l[1] = mylines[i].y1;
-    l[3] = mylines[i].y2;
-    //std::cout << mylines[i].x1 << " " <<  mylines[i].x2 << std::endl;
-    ret.push_back(l);
+      l[3] = mylines[i].y + hi;
+      ret.push_back(l);
+    }
   }
+
   return ret;
 }
 
+//TO MODIFY
 void remove_lines(cv::Mat& img,
                   std::vector<Vec4i>& lines)
 {
@@ -183,12 +209,12 @@ int main(int argc, char** argv)
     std::cout << "Total lines = " << lines.size() << std::endl;
     display_lines(img, lines);
 
-    display(img, 500);
+    display(img, 600);
     imwrite("output.png", img);
 
     //remove_lines(dst, lines);
     //imwrite("output_no_line.png", dst);
-    //display(dst, 700);
+    //display(dst, 600);
   }
   return 0;
 }
