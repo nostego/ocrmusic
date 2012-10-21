@@ -32,6 +32,7 @@ int main(int argc, char** argv)
     lines = detect_lines(img_process, max_rot);
     display_lines(img_display, lines);
 
+    //display(img_process, 600);
     display(img_display, 600);
     imwrite("output.png", img_display);
   }

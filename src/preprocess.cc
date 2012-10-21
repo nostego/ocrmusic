@@ -6,8 +6,7 @@ cv::Mat preprocess(cv::Mat& img)
 
   cv::cvtColor(img, ret, CV_RGB2GRAY);
   //cv::equalizeHist(ret, ret);
-  cv::threshold(ret, ret, 200.0, 255.0, cv::THRESH_BINARY_INV);
-
+  cv::threshold(ret, ret, 190.0, 255.0, cv::THRESH_BINARY_INV);
   return ret;
 }
 
