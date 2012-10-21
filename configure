@@ -1,0 +1,24 @@
+#! /bin/bash
+
+rm -f Makefile.inc
+
+rm -f `find . -name '*~'`
+rm -f `find . -name '*#'`
+rm -f `find src -name '.*'|grep -v '.svn'`
+
+for file in `find src -name '*.c'` `find src -name '*.cc'`;
+do
+    OBJ=`echo "$file"|sed 's/\.cc/\.o/g'|sed 's/\.c/\.o/g'`
+    echo -n "$OBJ: $file"  >> Makefile.inc
+    BASENAME=`basename "$file"`
+    DIR=`echo "$file"|sed "s/$BASENAME//"`
+    #for deps in `grep 'include \"' "$file" 2>/dev/null|sed 's/#//g'|sed 's/include//g'|sed 's/\"//g'`; do
+#	deps=`echo "$deps"|tr -d -c '[:print:]'`
+#	echo -n " $DIR$deps"  >> Makefile.inc
+#    done
+    echo ""  >> Makefile.inc
+    echo -e "\t\${CC} -c $file \${DEFINE} \${CFLAGS} \${IFLAGS} -o $OBJ" >> Makefile.inc
+    echo "" >> Makefile.inc
+done
+
+echo "OBJS="`find src -name '*.cc'|sed 's/\.cc/\.o/g'` `find src -name '*.c'|sed 's/\.c/\.o/g'` >> Makefile.inc

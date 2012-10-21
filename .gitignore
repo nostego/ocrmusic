@@ -2,6 +2,12 @@
 *.slo
 *.lo
 *.o
+Makefile.inc
+*.png
+ocrsheet
+*.jpg
+*.gif
+*.bmp
 
 # Compiled Dynamic libraries
 *.so
