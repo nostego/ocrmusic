@@ -14,7 +14,7 @@ bool unique_line(Vec4i i, Vec4i j)
   return (std::min(i[1], i[3]) == std::min(j[1], j[3]));
 }
 
-std::vector<Vec4i> detect_lines(cv::Mat& img)
+std::vector<Line> detect_lines(cv::Mat& img)
 {
   std::vector<Vec4i> lines;
   std::vector<Vec4i> ret;
@@ -93,22 +93,7 @@ std::vector<Vec4i> detect_lines(cv::Mat& img)
     }
   }
 
-  ret.clear();
-  for (size_t i = 0; i < mylines.size(); ++i)
-  {
-    for (size_t hi = 0; hi < mylines[i].h; ++hi)
-    {
-      Vec4i l;
-
-      l[0] = 0;
-      l[1] = mylines[i].y + hi;
-      l[2] = img.size().width;
-      l[3] = mylines[i].y + hi;
-      ret.push_back(l);
-    }
-  }
-
-  return ret;
+  return mylines;
 }
 
 //TO MODIFY
@@ -145,12 +130,21 @@ void remove_lines(cv::Mat& img,
 }
 
 void display_lines(cv::Mat& img,
-                   std::vector<Vec4i>& lines)
+                   std::vector<Line>& mylines)
 {
-  for( size_t i = 0; i < lines.size(); i++ )
+  for (size_t i = 0; i < mylines.size(); ++i)
   {
-    line(img, Point(lines[i][0], lines[i][1]),
-         Point(lines[i][2], lines[i][3]), Scalar(0,0,255), 1, 8 );
+    for (size_t hi = 0; hi < mylines[i].h; ++hi)
+    {
+      Vec4i l;
+
+      l[0] = 0;
+      l[1] = mylines[i].y + hi;
+      l[2] = img.size().width;
+      l[3] = mylines[i].y + hi;
+      line(img, Point(l[0], l[1]),
+           Point(l[2], l[3]), Scalar(0,0,255), 1, 8 );
+    }
   }
 }
 

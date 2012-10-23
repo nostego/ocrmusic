@@ -5,6 +5,7 @@
 Makefile.inc
 ocrsheet
 output.png
+test
 
 # Compiled Dynamic libraries
 *.so

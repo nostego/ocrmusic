@@ -26,10 +26,7 @@ int main(int argc, char** argv)
     cv::Mat img_process = preprocess(img_display);
 
     lines = detect_lines(img_process);
-    display_lines(img_display, lines);
-
-    display(img_display, 700);
-    imwrite("output.png", img_display);
+    std::cout << lines.size() << std::endl;
   }
   return 0;
 }

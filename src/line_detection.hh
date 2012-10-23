@@ -17,9 +17,11 @@ struct Line
 
 bool sort_line(cv::Vec4i i, cv::Vec4i j);
 bool unique_line(cv::Vec4i i, cv::Vec4i j);
-std::vector<cv::Vec4i> detect_lines(cv::Mat& img);
+
+std::vector<Line> detect_lines(cv::Mat& img);
+
 void remove_lines(cv::Mat& img,
                   std::vector<cv::Vec4i>& lines);
 void display_lines(cv::Mat& img,
-                   std::vector<cv::Vec4i>& lines);
+                   std::vector<Line>& lines);
 #endif // !LINE_DETECTION_HH_

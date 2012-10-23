@@ -21,4 +21,4 @@ do
     echo "" >> Makefile.inc
 done
 
-echo "OBJS="`find src -name '*.cc'|sed 's/\.cc/\.o/g'` `find src -name '*.c'|sed 's/\.c/\.o/g'` >> Makefile.inc
+echo "OBJS="`find src -name '*.cc'|sed 's/\.cc/\.o/g'|sed 's/src\/main\.o//'`  >> Makefile.inc
