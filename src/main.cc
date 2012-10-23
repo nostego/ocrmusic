@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     lines = detect_lines(img_process);
     display_lines(img_display, lines);
 
-    display(img_display, 700);
+    display(img_display, 600);
     imwrite("output.png", img_display);
   }
   return 0;

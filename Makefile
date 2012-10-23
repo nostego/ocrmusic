@@ -1,4 +1,4 @@
-CFLAGS=-W -Wall -Wextra -Wunused-function -Werror -O3
+CFLAGS=-W -Wall -Wextra -Wunused-function -O3
 DEFINE=
 IFLAGS=-I src
 LINK=-lcv -lhighgui -lcxcore

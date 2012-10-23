@@ -1,7 +1,6 @@
 dense2.png 50
 normal2.png 50
 normal.png 60
-old2.jpg 75
 old.jpg 60
 small2.jpg 40
 small3.png 50
