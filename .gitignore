@@ -3,11 +3,8 @@
 *.lo
 *.o
 Makefile.inc
-*.png
 ocrsheet
-*.jpg
-*.gif
-*.bmp
+output.png
 
 # Compiled Dynamic libraries
 *.so
