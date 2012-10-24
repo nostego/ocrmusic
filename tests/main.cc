@@ -25,7 +25,7 @@ int main(int argc, char** argv)
     cv::Mat img_display = cv::imread(argv[1]);
     cv::Mat img_process = preprocess(img_display);
 
-    lines = detect_lines(img_process);
+    lines = detect_lines(img_process, 60.0);
     std::cout << lines.size() << std::endl;
   }
   return 0;

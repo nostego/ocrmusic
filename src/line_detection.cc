@@ -1,11 +1,10 @@
 #include "line_detection.hh"
-#define EPSILON 0.00001
+
 #define MARGIN_SCAN 0.01
-#define MAX_ROT 1
 
 using namespace cv;
 
-std::vector<Line> get_raw_lines(cv::Mat& img)
+std::vector<Line> get_raw_lines(cv::Mat& img, double max_rot)
 {
   std::vector<Line> mylines;
   std::vector<Vec2f> lines;
@@ -13,15 +12,19 @@ std::vector<Line> get_raw_lines(cv::Mat& img)
   HoughLines(img, lines, 1, CV_PI / 180.0, 20);
   for (size_t i = 0; i < lines.size(); ++i)
   {
-    if ((fabs(lines[i][1] - (M_PI / 2.0)) < EPSILON) &&
-	(lines[i][0] >= MARGIN_SCAN * img.size().height) &&
-	(lines[i][0] <= img.size().height - MARGIN_SCAN * img.size().height)) // TO modify for rot
+    if ((fabs(lines[i][1] - (M_PI / 2.0)) < max_rot * (M_PI / 180.0)) &&
+        (lines[i][0] >= MARGIN_SCAN * img.size().height) &&
+        (lines[i][0] <= img.size().height - MARGIN_SCAN * img.size().height))
     {
       int energy = 0.0;
+      double a = (1.0 / ((-2.0 / M_PI) * lines[i][1])) + 1;
 
       for (int x = 0; x < img.size().width; ++x)
       {
-        energy += (int)img.at<uchar>(lines[i][0], x) / 255;
+        int y = a * x + lines[i][0];
+
+        if ((y >= 0) && (y < img.size().height))
+          energy += (int)img.at<uchar>(y, x) / 255;
       }
       if (energy >= 0.6 * img.size().width)
       {
@@ -34,19 +37,17 @@ std::vector<Line> get_raw_lines(cv::Mat& img)
       }
     }
   }
- 
+
 
   return mylines;
 }
 
-std::vector<Line> detect_lines(cv::Mat& img)
+std::vector<Line> detect_lines(cv::Mat& img,
+			       double max_rot)
 {
-
-  std::vector<Vec4i> ret;
   std::vector<Line> mylines;
 
-  mylines = get_raw_lines(img);
-
+  mylines = get_raw_lines(img, max_rot);
   return mylines;
 }
 
@@ -55,17 +56,15 @@ void display_lines(cv::Mat& img,
 {
   for (size_t i = 0; i < mylines.size(); ++i)
   {
-    for (size_t hi = 0; hi < mylines[i].h; ++hi)
-    {
-      Vec4i l;
+    Vec4i l;
+    double a = (1.0 / ((-2.0 / M_PI) * mylines[i].angle)) + 1;
 
-      l[0] = 0;
-      l[1] = mylines[i].y + hi;
-      l[2] = img.size().width;
-      l[3] = mylines[i].y + hi;
-      line(img, Point(l[0], l[1]),
-           Point(l[2], l[3]), Scalar(0,0,255), 1, 8 );
-    }
+    l[0] = 0;
+    l[1] = mylines[i].y;
+    l[2] = img.size().width;
+    l[3] = a * img.size().width + mylines[i].y;
+    line(img, Point(l[0], l[1]),
+         Point(l[2], l[3]), Scalar(0,0,255), 1, 8 );
   }
 }
 

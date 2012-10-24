@@ -5,3 +5,5 @@ old.jpg 60
 small2.jpg 40
 small3.png 50
 small.jpg 25
+rot2_normal.png 60
+rot_normal.png 60

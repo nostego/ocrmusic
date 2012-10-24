@@ -15,8 +15,8 @@ struct Line
   double angle;
 };
 
-std::vector<Line> get_raw_lines(cv::Mat& img);
-std::vector<Line> detect_lines(cv::Mat& img);
+std::vector<Line> get_raw_lines(cv::Mat& img, double max_rot);
+std::vector<Line> detect_lines(cv::Mat& img, double max_rot);
 
 void display_lines(cv::Mat& img,
                    std::vector<Line>& lines);

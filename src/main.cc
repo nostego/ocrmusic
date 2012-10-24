@@ -16,7 +16,7 @@ int main(int argc, char** argv)
   {
     std::cerr << "Usage: "
               << argv[0]
-              << " sheet_image"
+              << " sheet_image [--straight]"
               << std::endl;
   }
   else
@@ -24,8 +24,12 @@ int main(int argc, char** argv)
     std::vector<Line> lines;
     cv::Mat img_display = cv::imread(argv[1]);
     cv::Mat img_process = preprocess(img_display);
+    double max_rot = 60.0;
 
-    lines = detect_lines(img_process);
+    if ((argc >= 3) && (strcmp(argv[2], "--straight") == 0))
+      max_rot = 0.001;
+
+    lines = detect_lines(img_process, max_rot);
     display_lines(img_display, lines);
 
     display(img_display, 600);
