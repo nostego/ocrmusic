@@ -14,7 +14,7 @@ std::vector<Line> detect_lines(cv::Mat& img,
 
   linedetection_preprocess(img, ret);
   mylines = get_raw_lines(ret, max_rot);
-  filter_lines(mylines);
+  filter_lines(mylines, img.size().height);
 
   return mylines;
 }
@@ -24,7 +24,8 @@ bool order_y(Line a,
   return a.y < b.y;
 }
 
-void filter_lines(std::vector<Line>& lines)
+void filter_lines(std::vector<Line>& lines,
+		  int height)
 {
   double dist[4];
   bool valid_line[lines.size()];
@@ -44,11 +45,11 @@ void filter_lines(std::vector<Line>& lines)
       dist[k] = lines[1 + i + k].y - lines[i + k].y;
       mean += dist[k];
     }
-    mean /= 4;
+    mean /= 4.0;
     for (size_t k = 0; k < 4; ++k)
     {
       dist[k] -= mean;
-      if (dist[k] > 1.0)
+      if (fabs(dist[k]) > 1.0 + (height / 100.0))
         is_valid = false;
     }
     if (is_valid)
