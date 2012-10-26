@@ -24,4 +24,7 @@ void filter_lines(std::vector<Line>& lines,
 		  int height);
 void display_lines(cv::Mat& img,
                    std::vector<Line>& lines);
+
+void remove_lines(cv::Mat& img,
+		  std::vector<Line>& lines);
 #endif // !LINE_DETECTION_HH_

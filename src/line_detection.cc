@@ -25,7 +25,7 @@ bool order_y(Line a,
 }
 
 void filter_lines(std::vector<Line>& lines,
-		  int height)
+                  int height)
 {
   double dist[4];
   bool valid_line[lines.size()];
@@ -76,6 +76,41 @@ void linedetection_preprocess(cv::Mat& img,
   //cv::dilate(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
   //cv::erode(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
   //display(ret, 600);
+}
+
+void remove_lines(cv::Mat& img,
+                  std::vector<Line>& lines)
+{
+  Scalar sc;
+
+  sc[0] = 255;
+  cv::Mat mask(img.size(), CV_8UC1, sc);
+
+  display_lines(mask, lines);
+  cv::threshold(mask, mask, 150.0, 255.0, cv::THRESH_BINARY_INV);
+  //cv::inpaint(img, mask, img, 2, INPAINT_NS | INPAINT_TELEA);
+
+  for (int y = 0; y < img.size().height; ++y)
+    for (int x = 0; x < img.size().width; ++x)
+      if (mask.at<uchar>(y, x) > 0)
+      {
+        bool something = 0;
+
+        if ((y >= 1) && (y + 1 < img.size().height))
+        {
+          something |= (img.at<uchar>(y - 1, x) > 0) &&
+	    (img.at<uchar>(y + 1, x) > 0);
+          if ((x >= 1) && (x + 1 < img.size().width))
+          {
+            something |= (img.at<uchar>(y - 1, x - 1) > 0) &&
+	      (img.at<uchar>(y + 1, x + 1) > 0);
+            something |= (img.at<uchar>(y - 1, x + 1) > 0) &&
+	      (img.at<uchar>(y + 1, x - 1) > 0);
+          }
+        }
+        if (!something)
+          img.at<uchar>(y, x) = 0;
+      }
 }
 
 std::vector<Line> get_raw_lines(cv::Mat& img, double max_rot)
@@ -130,7 +165,7 @@ void display_lines(cv::Mat& img,
     l[3] = a * img.size().width + mylines[i].y;
     line(img, Point(l[0], l[1]),
          Point(l[2], l[3]), Scalar(0,0,255), 1 + img.size().height / 1000,
-	 8);
+         8);
   }
 }
 
