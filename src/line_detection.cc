@@ -73,8 +73,8 @@ void linedetection_preprocess(cv::Mat& img,
 {
   cv::cvtColor(img, ret, CV_RGB2GRAY);
   cv::threshold(ret, ret, 195.0, 255.0, cv::THRESH_BINARY_INV);
-  cv::dilate(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
-  cv::erode(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
+  //cv::dilate(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
+  //cv::erode(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
   //display(ret, 600);
 }
 
