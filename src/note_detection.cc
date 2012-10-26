@@ -74,7 +74,7 @@ std::vector<Note> detect_notes(cv::Mat& img,
     del[i] = false;
   for (size_t i = 0; i < boundRect.size(); i++)
   {
-    if ((double)boundRect[i].height > piste_height * 2.0)
+    if (boundRect[i].height > piste_height * 2.0)
       del[i] = true;
   }
 
@@ -92,7 +92,7 @@ std::vector<Note> detect_notes(cv::Mat& img,
 
   bool inpiste[img.size().height];
 
-  for (size_t i = 0; i < img.size().height; i++)
+  for (int i = 0; i < img.size().height; i++)
     inpiste[i] = false;
 
   for (size_t i = 0; i < lines.size(); i++)
@@ -110,6 +110,8 @@ std::vector<Note> detect_notes(cv::Mat& img,
     del[i] = false;
   for (size_t i = 0; i < boundRect.size(); i++)
   {
+    // Also, check the x, you have the y line, with the energy
+    // start you can deduce the x and thus filter more
     if (!inpiste[boundRect[i].y] &&
 	!inpiste[boundRect[i].y + boundRect[i].height] &&
 	!inpiste[boundRect[i].y + boundRect[i].height / 2])
