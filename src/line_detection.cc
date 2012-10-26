@@ -14,16 +14,66 @@ std::vector<Line> detect_lines(cv::Mat& img,
 
   linedetection_preprocess(img, ret);
   mylines = get_raw_lines(ret, max_rot);
+  filter_lines(mylines);
+
   return mylines;
+}
+bool order_y(Line a,
+             Line b)
+{
+  return a.y < b.y;
+}
+
+void filter_lines(std::vector<Line>& lines)
+{
+  double dist[4];
+  bool valid_line[lines.size()];
+  double mean;
+
+  sort(lines.begin(), lines.end(), order_y);
+  for (size_t i = 0; i < lines.size(); ++i)
+    valid_line[i] = false;
+
+  for (size_t i = 0; i < lines.size() - 4; ++i)
+  {
+    bool is_valid = true;
+
+    mean = 0.0;
+    for (size_t k = 0; k < 4; ++k)
+    {
+      dist[k] = lines[1 + i + k].y - lines[i + k].y;
+      mean += dist[k];
+    }
+    mean /= 4;
+    for (size_t k = 0; k < 4; ++k)
+    {
+      dist[k] -= mean;
+      if (dist[k] > 1.0)
+        is_valid = false;
+    }
+    if (is_valid)
+      for (size_t k = 0; k < 5; ++k)
+        valid_line[i + k] = true;
+  }
+  size_t si = lines.size();
+  int offset = 0;
+  for (size_t i = 0; i < si; ++i)
+  {
+    if (!valid_line[i])
+    {
+      lines.erase(lines.begin() + i - offset);
+      ++offset;
+    }
+  }
 }
 
 void linedetection_preprocess(cv::Mat& img,
                               cv::Mat& ret)
 {
   cv::cvtColor(img, ret, CV_RGB2GRAY);
-  cv::threshold(ret, ret, 200.0, 255.0, cv::THRESH_BINARY_INV);
-  //cv::dilate(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
-  //cv::erode(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
+  cv::threshold(ret, ret, 195.0, 255.0, cv::THRESH_BINARY_INV);
+  cv::dilate(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
+  cv::erode(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
   //display(ret, 600);
 }
 
@@ -32,7 +82,7 @@ std::vector<Line> get_raw_lines(cv::Mat& img, double max_rot)
   std::vector<Line> mylines;
   std::vector<Vec2f> lines;
 
-  HoughLines(img, lines, 1, CV_PI / 180.0, 20);
+  HoughLines(img, lines, 1, CV_PI / 180.0, 10);
   for (size_t i = 0; i < lines.size(); ++i)
   {
     if ((fabs(lines[i][1] - (M_PI / 2.0)) < max_rot * (M_PI / 180.0)) &&

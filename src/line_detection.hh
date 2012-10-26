@@ -20,7 +20,7 @@ std::vector<Line> detect_lines(cv::Mat& img, double max_rot);
 
 void linedetection_preprocess(cv::Mat& img,
 			      cv::Mat& ret);
-
+void filter_lines(std::vector<Line>& lines);
 void display_lines(cv::Mat& img,
                    std::vector<Line>& lines);
 #endif // !LINE_DETECTION_HH_
