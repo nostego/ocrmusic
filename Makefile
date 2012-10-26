@@ -16,7 +16,7 @@ ${TARGET}: ${OBJS} src/main.o
 	g++ ${OBJS} src/main.o ${LINK} -o $@
 
 check: ./tests/test
-	(cd tests && ./check.sh)
+	(cd tests && ./check_corpus_integrity.sh && ./check.sh)
 
 ./tests/test: ${OBJS} ./tests/main.o
 	g++ ${OBJS} ./tests/main.o ${LINK} -o $@

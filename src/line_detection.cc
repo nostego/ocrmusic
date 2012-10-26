@@ -1,8 +1,31 @@
 #include "line_detection.hh"
+#include "tools.hh"
 
 #define MARGIN_SCAN 0.01
+#define EPSILON 0.01
 
 using namespace cv;
+
+std::vector<Line> detect_lines(cv::Mat& img,
+                               double max_rot)
+{
+  std::vector<Line> mylines;
+  cv::Mat ret(img.size(), CV_8UC1);
+
+  linedetection_preprocess(img, ret);
+  mylines = get_raw_lines(ret, max_rot);
+  return mylines;
+}
+
+void linedetection_preprocess(cv::Mat& img,
+                              cv::Mat& ret)
+{
+  cv::cvtColor(img, ret, CV_RGB2GRAY);
+  cv::threshold(ret, ret, 200.0, 255.0, cv::THRESH_BINARY_INV);
+  //cv::dilate(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
+  //cv::erode(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
+  //display(ret, 600);
+}
 
 std::vector<Line> get_raw_lines(cv::Mat& img, double max_rot)
 {
@@ -39,15 +62,6 @@ std::vector<Line> get_raw_lines(cv::Mat& img, double max_rot)
   }
 
 
-  return mylines;
-}
-
-std::vector<Line> detect_lines(cv::Mat& img,
-			       double max_rot)
-{
-  std::vector<Line> mylines;
-
-  mylines = get_raw_lines(img, max_rot);
   return mylines;
 }
 

@@ -18,6 +18,9 @@ struct Line
 std::vector<Line> get_raw_lines(cv::Mat& img, double max_rot);
 std::vector<Line> detect_lines(cv::Mat& img, double max_rot);
 
+void linedetection_preprocess(cv::Mat& img,
+			      cv::Mat& ret);
+
 void display_lines(cv::Mat& img,
                    std::vector<Line>& lines);
 #endif // !LINE_DETECTION_HH_
