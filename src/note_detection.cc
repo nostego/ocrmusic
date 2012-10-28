@@ -13,7 +13,7 @@ void notedetection_preprocess(cv::Mat& img,
 }
 
 std::vector<cv::Rect> get_piste_rect(std::vector<Line>& lines,
-				     cv::Mat& img)
+                                     cv::Mat& img)
 {
   std::vector<cv::Rect> rect;
   double piste_height = fabs(lines[4].y - lines[0].y);
@@ -34,8 +34,8 @@ std::vector<cv::Rect> get_piste_rect(std::vector<Line>& lines,
 }
 
 void filter_bbox(std::vector<cv::Rect>& boundRect,
-		 std::vector<Line>& lines,
-		 std::vector<cv::Rect>& pistes_rect)
+                 std::vector<Line>& lines,
+                 std::vector<cv::Rect>& pistes_rect)
 {
   bool del[boundRect.size()];
   double piste_height = fabs(lines[4].y - lines[0].y);
@@ -56,12 +56,12 @@ void filter_bbox(std::vector<cv::Rect>& boundRect,
 }
 
 std::vector<cv::Rect> get_notes_rect(cv::Mat& ret,
-				     std::vector<Line>& lines,
-				     std::vector<cv::Rect>& pistes_rect)
+                                     std::vector<Line>& lines,
+                                     std::vector<cv::Rect>& pistes_rect)
 {
   std::vector<cv::Rect> notes_rect;
 
-  notes_rect = get_bounding_box(ret);  
+  notes_rect = get_bounding_box(ret);
   filter_bbox(notes_rect, lines, pistes_rect);
   return notes_rect;
 }
