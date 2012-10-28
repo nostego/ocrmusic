@@ -86,7 +86,7 @@ void remove_lines(cv::Mat& img,
   sc[0] = 255;
   cv::Mat mask(img.size(), CV_8UC1, sc);
 
-  display_lines(mask, lines);
+  display_lines(mask, lines, 0xff0000);
   cv::threshold(mask, mask, 150.0, 255.0, cv::THRESH_BINARY_INV);
   //cv::inpaint(img, mask, img, 2, INPAINT_NS | INPAINT_TELEA);
 
@@ -152,7 +152,8 @@ std::vector<Line> get_raw_lines(cv::Mat& img, double max_rot)
 }
 
 void display_lines(cv::Mat& img,
-                   std::vector<Line>& mylines)
+                   std::vector<Line>& mylines,
+		   int rgb)
 {
   for (size_t i = 0; i < mylines.size(); ++i)
   {
@@ -164,7 +165,8 @@ void display_lines(cv::Mat& img,
     l[2] = img.size().width;
     l[3] = a * img.size().width + mylines[i].y;
     line(img, Point(l[0], l[1]),
-         Point(l[2], l[3]), Scalar(0,0,255), 1 + img.size().height / 1000,
+         Point(l[2], l[3]),
+	 Scalar(rgb & 0x0000ff, rgb & 0x00ff00, rgb & 0xff0000), 1 + img.size().height / 1000,
          8);
   }
 }

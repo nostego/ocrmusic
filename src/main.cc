@@ -29,7 +29,7 @@ int main(int argc, char** argv)
       max_rot = 0.001;
 
     lines = detect_lines(img, max_rot);
-    //display_lines(img, lines);
+    display_lines(img, lines, 0x00ff00);
     
     detect_notes(img, lines);
     //display(img, 600);
