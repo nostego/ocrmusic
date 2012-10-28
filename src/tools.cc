@@ -40,7 +40,7 @@ void display_rect(cv::Mat& img,
     pt2.x = boundRect[i].x + boundRect[i].width;
     pt2.y = boundRect[i].y + boundRect[i].height;
 
-    cv::rectangle(img, pt1, pt2, sc);
+    cv::rectangle(img, pt1, pt2, sc, 1 + img.size().height / 1000);
   }
 }
 
