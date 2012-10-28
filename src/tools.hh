@@ -27,5 +27,8 @@ void filter(std::vector<T>& v,
 
 std::vector<cv::Rect> get_bounding_box(cv::Mat& img);
 void display_rect(cv::Mat& img,
-		  std::vector<cv::Rect>& boundRect);
+		  std::vector<cv::Rect>& boundRect,
+		  int rgb);
+bool collide(cv::Rect& a, cv::Rect& b);
+
 #endif // !TOOLS_HH_

@@ -12,14 +12,23 @@ void display(cv::Mat& img,
   cv::waitKey(0);
 }
 
+bool collide(cv::Rect& a, cv::Rect& b)
+{
+  return !((a.y + a.height < b.y) ||
+	  (a.y > b.y + b.height) ||
+	  (a.x > b.x + b.width) ||
+	  (a.x + a.width < b.x));
+}
+
 void display_rect(cv::Mat& img,
-		  std::vector<cv::Rect>& boundRect)
+		  std::vector<cv::Rect>& boundRect,
+		  int rgb)
 {
   cv::Scalar sc;
 
-  sc[0] = 255;
-  sc[1] = 0;
-  sc[2] = 0;
+  sc[0] = rgb & 0x0000ff;
+  sc[1] = rgb & 0x00ff00;
+  sc[2] = rgb & 0xff0000;
 
   for (size_t i = 0; i < boundRect.size(); i++)
   {
