@@ -1,9 +1,9 @@
-#include "note_detection.hh"
+#include "symbol_detection.hh"
 #include "tools.hh"
 
-void notedetection_preprocess(cv::Mat& img,
-                              cv::Mat& ret,
-                              std::vector<Line>& lines)
+void symboldetection_preprocess(cv::Mat& img,
+                                cv::Mat& ret,
+                                std::vector<Line>& lines)
 {
   cv::cvtColor(img, ret, CV_RGB2GRAY);
   cv::threshold(ret, ret, 195.0, 255.0, cv::THRESH_BINARY_INV);
@@ -53,33 +53,40 @@ void filter_bbox(std::vector<cv::Rect>& boundRect,
   filter(boundRect, del);
 }
 
-std::vector<cv::Rect> get_notes_rect(cv::Mat& ret,
-                                     std::vector<Line>& lines,
-                                     std::vector<cv::Rect>& pistes_rect)
+std::vector<cv::Rect> get_symbols_rect(cv::Mat& ret,
+				       std::vector<Line>& lines,
+				       std::vector<cv::Rect>& pistes_rect)
 {
-  std::vector<cv::Rect> notes_rect;
+  std::vector<cv::Rect> symbols_rect;
 
-  notes_rect = get_bounding_box(ret);
-  filter_bbox(notes_rect, lines, pistes_rect);
-  return notes_rect;
+  symbols_rect = get_bounding_box(ret);
+  filter_bbox(symbols_rect, lines, pistes_rect);
+  return symbols_rect;
 }
 
-std::vector<Note> detect_notes(cv::Mat& img,
-                               std::vector<Line>& lines)
+std::vector<Symbol> detect_symbols(cv::Mat& img,
+                                 std::vector<Line>& lines)
 {
   cv::Mat ret(img.size(), CV_8UC1);
-  std::vector<Note> notes;
-  std::vector<cv::Rect> notes_rect;
+  std::vector<Symbol> symbols;
+  std::vector<cv::Rect> symbols_rect;
   std::vector<cv::Rect> pistes_rect;
 
-  notedetection_preprocess(img, ret, lines);
+  symboldetection_preprocess(img, ret, lines);
   pistes_rect = get_piste_rect(lines, ret);
-  notes_rect = get_notes_rect(ret, lines, pistes_rect);
+  symbols_rect = get_symbols_rect(ret, lines, pistes_rect);
 
-  display_rect(img, notes_rect, 0x0000ff);
+  display_rect(img, symbols_rect, 0x0000ff);
   display_rect(img, pistes_rect, 0xff0000);
-  cv::imwrite("output.png", img);
-  display(img, 800);
 
-  return notes;
+  for (size_t k = 0; k < symbols_rect.size(); ++k)
+  {
+    Symbol s;
+
+    s.rect = symbols_rect[k];
+    s.pos = -1;
+    symbols.push_back(s);
+  }
+
+  return symbols;
 }

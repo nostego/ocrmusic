@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include "line_detection.hh"
+#include "symbol_detection.hh"
 #include "tools.hh"
 
 using namespace cv;
@@ -29,6 +30,8 @@ int main(int argc, char** argv)
 
     lines = detect_lines(img, max_rot);
     std::cout << lines.size() << std::endl;
+    std::vector<Symbol> syms = detect_symbols(img, lines);
+    std::cout << syms.size() << std::endl;
   }
   return 0;
 }

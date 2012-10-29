@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include "line_detection.hh"
-#include "note_detection.hh"
+#include "symbol_detection.hh"
 #include "tools.hh"
 
 using namespace cv;
@@ -31,9 +31,9 @@ int main(int argc, char** argv)
     lines = detect_lines(img, max_rot);
     display_lines(img, lines, 0x00ff00);
     
-    detect_notes(img, lines);
-    //display(img, 600);
-    //imwrite("output.png", img);
+    detect_symbols(img, lines);
+    display(img, 600);
+    imwrite("output.png", img);
   }
   return 0;
 }

@@ -27,26 +27,38 @@ while read line; do
     done
 done < tests.txt 2>/dev/null
 
-while read line; do
-    img=`echo $line|cut -d' ' -f1`
-    tests="--rot"
-    if (echo "$img"|grep -v 'rot' >/dev/null 2>&1); then
-        tests="$tests --straight"
-    fi
-    for i in $tests; do
-        refline=`echo $line|cut -d' ' -f2`
-        nline=`head -n 1 $img$i.out`
-        rm -f $img$i.out
-        verbosename="$img.number_of_lines$i"
-        if (test "$refline" != "$nline"); then
-            echo -e "${red}KO${white}\t$verbosename\tref<$refline> != <$nline>"
+function check_that
+{
+    ref=`echo $line|cut -d' ' -f$(($1 + 1))`
+    if (test "$ref" != "-1"); then
+        mine=`head -n $1 $img$i.out|tail -n 1`
+        verbosename="$img$i"
+        verbosename="$verbosename.$2"
+        if (test "$ref" != "$mine"); then
+            echo -e "${red}KO${white}\t$verbosename\tref<$ref> != <$mine>"
             fail=$((fail + 1))
         else
             echo -e "${green}OK${white}\t$verbosename"
         fi
         total=$((total + 1))
-    done
-done < tests.txt 2>/dev/null
+    fi
+}
+
+indextest=1
+for verbose_test in `cat verbose.txt`; do
+    while read line; do
+        img=`echo $line|cut -d' ' -f1`
+        tests="--rot"
+        if (echo "$img"|grep -v 'rot' >/dev/null 2>&1); then
+            tests="$tests --straight"
+        fi
+        for i in $tests; do
+            check_that $indextest "$verbose_test"
+        done
+    done < tests.txt 2>/dev/null
+    indextest=$((indextest + 1))
+done
+rm -f *.out
 echo ""
 echo -ne "\t"
 

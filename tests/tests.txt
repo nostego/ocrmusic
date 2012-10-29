@@ -1,13 +1,13 @@
-normal.png 60
-normal2.png 50
-normal3.png 60
-normal4.png 45
-normal5.jpg 50
-normal6.jpg 30
-small.jpg 25
-small2.jpg 40
-small3.png 50
-huge.png 60
-huge2.png 60
-rot2_normal.png 60
-rot_normal.png 60
+normal.png 60 -1
+normal2.png 50 -1
+normal3.png 60 -1
+normal4.png 45 -1
+normal5.jpg 50 -1
+normal6.jpg 30 61
+small.jpg 25 -1
+small2.jpg 40 -1
+small3.png 50 -1
+huge.png 60 -1
+huge2.png 60 -1
+rot2_normal.png 60 -1
+rot_normal.png 60 -1
