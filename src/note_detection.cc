@@ -1,8 +1,6 @@
 #include "note_detection.hh"
 #include "tools.hh"
 
-#define EPSILON 0.01
-
 void notedetection_preprocess(cv::Mat& img,
                               cv::Mat& ret,
                               std::vector<Line>& lines)

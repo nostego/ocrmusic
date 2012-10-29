@@ -28,12 +28,28 @@ void filter_lines(std::vector<Line>& lines,
                   int height)
 {
   double dist[4];
-  bool valid_line[lines.size()];
+  bool todel[lines.size()];
   double mean;
 
   sort(lines.begin(), lines.end(), order_y);
+
   for (size_t i = 0; i < lines.size(); ++i)
-    valid_line[i] = false;
+    todel[i] = true;
+
+
+  int lasty = -1;
+
+  for (size_t k = 0; k < lines.size(); ++k)
+  {
+    if ((lasty < 0) ||
+        (fabs(lasty - (double)lines[k].y) >  1 + height * 0.001))
+      todel[k] = false;
+    lasty = lines[k].y;
+  }
+
+  filter(lines, todel);
+  for (size_t i = 0; i < lines.size(); ++i)
+    todel[i] = true;
 
   for (size_t i = 0; i < lines.size() - 4; ++i)
   {
@@ -54,18 +70,10 @@ void filter_lines(std::vector<Line>& lines,
     }
     if (is_valid)
       for (size_t k = 0; k < 5; ++k)
-        valid_line[i + k] = true;
+        todel[i + k] = false;
   }
-  size_t si = lines.size();
-  int offset = 0;
-  for (size_t i = 0; i < si; ++i)
-  {
-    if (!valid_line[i])
-    {
-      lines.erase(lines.begin() + i - offset);
-      ++offset;
-    }
-  }
+
+  filter(lines, todel);
 }
 
 void linedetection_preprocess(cv::Mat& img,
@@ -99,13 +107,13 @@ void remove_lines(cv::Mat& img,
         if ((y >= 1) && (y + 1 < img.size().height))
         {
           something |= (img.at<uchar>(y - 1, x) > 0) &&
-	    (img.at<uchar>(y + 1, x) > 0);
+            (img.at<uchar>(y + 1, x) > 0);
           if ((x >= 1) && (x + 1 < img.size().width))
           {
             something |= (img.at<uchar>(y - 1, x - 1) > 0) &&
-	      (img.at<uchar>(y + 1, x + 1) > 0);
+              (img.at<uchar>(y + 1, x + 1) > 0);
             something |= (img.at<uchar>(y - 1, x + 1) > 0) &&
-	      (img.at<uchar>(y + 1, x - 1) > 0);
+              (img.at<uchar>(y + 1, x - 1) > 0);
           }
         }
         if (!something)
@@ -153,7 +161,7 @@ std::vector<Line> get_raw_lines(cv::Mat& img, double max_rot)
 
 void display_lines(cv::Mat& img,
                    std::vector<Line>& mylines,
-		   int rgb)
+                   int rgb)
 {
   for (size_t i = 0; i < mylines.size(); ++i)
   {
@@ -166,7 +174,7 @@ void display_lines(cv::Mat& img,
     l[3] = a * img.size().width + mylines[i].y;
     line(img, Point(l[0], l[1]),
          Point(l[2], l[3]),
-	 Scalar(rgb & 0x0000ff, rgb & 0x00ff00, rgb & 0xff0000), 1 + img.size().height / 1000,
+         Scalar(rgb & 0x0000ff, rgb & 0x00ff00, rgb & 0xff0000), 1 + img.size().height / 1000,
          8);
   }
 }
