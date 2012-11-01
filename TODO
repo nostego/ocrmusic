@@ -1,2 +1,8 @@
 - Try niblack binarization
 - Merge closed lines
+
+Basic OCR:
+Keys G + F
+- Basic recognition using key features
+- If failed, machine learning.
+flat symbol + becare.
