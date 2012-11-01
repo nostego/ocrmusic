@@ -2,6 +2,7 @@
 # define SYMBOL_DETECTION_HH_
 
 # include "line_detection.hh"
+# include <algorithm>
 
 struct Symbol
 {

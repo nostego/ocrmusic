@@ -4,9 +4,14 @@
 # include <opencv/cv.h>
 # include <opencv/highgui.h>
 # include <vector>
+# include <queue>
 
 void display(cv::Mat& img,
-             double target_display_w);
+             double target_display_w = 0);
+void magicwand(cv::Mat&img,
+               int x,
+               int y,
+               std::vector<cv::Point>& points);
 
 template <typename T>
 void filter(std::vector<T>& v,

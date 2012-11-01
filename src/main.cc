@@ -31,8 +31,9 @@ int main(int argc, char** argv)
     lines = detect_lines(img, max_rot);
     display_lines(img, lines, 0x00ff00);
     
-    detect_symbols(img, lines);
-    display(img, 600);
+    std::vector<Symbol> symbols = detect_symbols(img, lines);
+    std::cout << "Number of symbols = " << symbols.size() << std::endl;
+    //display(img, 600);
     imwrite("output.png", img);
   }
   return 0;

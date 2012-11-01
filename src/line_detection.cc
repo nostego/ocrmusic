@@ -38,12 +38,18 @@ void filter_lines(std::vector<Line>& lines,
 
 
   int lasty = -1;
+  int lastk = 0;
 
   for (size_t k = 0; k < lines.size(); ++k)
   {
     if ((lasty < 0) ||
         (fabs(lasty - (double)lines[k].y) >  1 + height * 0.001))
+    {
       todel[k] = false;
+      lastk = k;
+    }
+    else
+      ++lines[lastk].h;
     lasty = lines[k].y;
   }
 
@@ -81,9 +87,6 @@ void linedetection_preprocess(cv::Mat& img,
 {
   cv::cvtColor(img, ret, CV_RGB2GRAY);
   cv::threshold(ret, ret, 195.0, 255.0, cv::THRESH_BINARY_INV);
-  //cv::dilate(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
-  //cv::erode(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
-  //display(ret, 600);
 }
 
 void remove_lines(cv::Mat& img,
@@ -96,29 +99,9 @@ void remove_lines(cv::Mat& img,
 
   display_lines(mask, lines, 0xff0000);
   cv::threshold(mask, mask, 150.0, 255.0, cv::THRESH_BINARY_INV);
-  //cv::inpaint(img, mask, img, 2, INPAINT_NS | INPAINT_TELEA);
-
-  for (int y = 0; y < img.size().height; ++y)
-    for (int x = 0; x < img.size().width; ++x)
-      if (mask.at<uchar>(y, x) > 0)
-      {
-        bool something = 0;
-
-        if ((y >= 1) && (y + 1 < img.size().height))
-        {
-          something |= (img.at<uchar>(y - 1, x) > 0) &&
-            (img.at<uchar>(y + 1, x) > 0);
-          if ((x >= 1) && (x + 1 < img.size().width))
-          {
-            something |= (img.at<uchar>(y - 1, x - 1) > 0) &&
-              (img.at<uchar>(y + 1, x + 1) > 0);
-            something |= (img.at<uchar>(y - 1, x + 1) > 0) &&
-              (img.at<uchar>(y + 1, x - 1) > 0);
-          }
-        }
-        if (!something)
-          img.at<uchar>(y, x) = 0;
-      }
+  cv::inpaint(img, mask, img, 3, INPAINT_TELEA | INPAINT_NS);
+  cv::threshold(img, img, 30.0, 255.0, cv::THRESH_BINARY);
+  //display(img, 700);
 }
 
 std::vector<Line> get_raw_lines(cv::Mat& img, double max_rot)

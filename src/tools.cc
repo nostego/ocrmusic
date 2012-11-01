@@ -3,12 +3,17 @@
 void display(cv::Mat& img,
              double target_display_w)
 {
-  cv::Mat disp(cv::Size(target_display_w,
-                        (target_display_w / (double)img.size().width)* img.size().height),
-               CV_8UC1);
-  cv::resize(img, disp, disp.size(), 0, 0, cv::INTER_LINEAR);
   cv::namedWindow("Display");
-  cv::imshow("Display", disp);
+  if (target_display_w < 1)
+    cv::imshow("Display", img);
+  else
+  {
+    cv::Mat disp(cv::Size(target_display_w,
+                          (target_display_w / (double)img.size().width)* img.size().height),
+                 CV_8UC1);
+    cv::resize(img, disp, disp.size(), 0, 0, cv::INTER_LINEAR);
+    cv::imshow("Display", disp);
+  }
   cv::waitKey(0);
 }
 
@@ -44,21 +49,64 @@ void display_rect(cv::Mat& img,
   }
 }
 
+void magicwand(cv::Mat&img,
+               int x,
+               int y,
+               std::vector<cv::Point>& points)
+{
+  std::queue<cv::Point> f;
+  uchar pointedPixel = img.at<uchar>(y, x);
+  bool visited[img.size().width][img.size().height];
+
+  for (int i = 0; i < img.size().width; ++i)
+    for (int j = 0; j < img.size().height; ++j)
+      visited[i][j] = false;
+
+  f.push(cv::Point(x, y));
+  while (!f.empty())
+  {
+    cv::Point p = f.front();
+
+    f.pop();
+    if ((p.x >= 0) && (p.x < img.size().width)
+        && (p.y >= 0) && (p.y < img.size().height)
+        && (!visited[p.x][p.y]))
+    {
+      if (img.at<uchar>(p.y, p.x) == pointedPixel)
+      {
+        points.push_back(cv::Point(p.x, p.y));
+        f.push(cv::Point(p.x - 1, p.y));
+        f.push(cv::Point(p.x + 1, p.y));
+        f.push(cv::Point(p.x, p.y - 1));
+        f.push(cv::Point(p.x, p.y + 1));
+      }
+      visited[p.x][p.y] = true;
+    }
+  }
+}
+
 std::vector<cv::Rect> get_bounding_box(cv::Mat& ret)
 {
   std::vector<std::vector<cv::Point> > contours;
   std::vector<cv::Vec4i> hierarchy;
-  cv::Mat cop(ret);
+  cv::Mat cop(ret.clone());
 
   findContours(cop, contours, hierarchy,
                CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
-  std::vector<cv::Rect> boundRect(contours.size() );
+  std::vector<cv::Rect> boundRect;
   std::vector<std::vector<cv::Point> > contours_poly(contours.size());
 
   for (size_t i = 0; i < contours.size(); i++ )
   {
     approxPolyDP(cv::Mat(contours[i]), contours_poly[i], 3, true);
-    boundRect[i] = cv::boundingRect(cv::Mat(contours_poly[i]));
+
+    std::vector<cv::Point> tmp;
+    
+    for (size_t k = 0; k < contours_poly[i].size(); ++k)
+      if (255 == ret.at<uchar>(contours_poly[i][k]))
+	magicwand(ret, contours_poly[i][k].x,
+		  contours_poly[i][k].y, tmp);
+    boundRect.push_back(cv::boundingRect(cv::Mat(tmp)));
   }
 
   return boundRect;
