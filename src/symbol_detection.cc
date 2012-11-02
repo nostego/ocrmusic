@@ -92,8 +92,8 @@ std::vector<Symbol> detect_symbols(cv::Mat& img,
   pistes_rect = get_piste_rect(lines, ret);
   symbols_rect = get_symbols_rect(ret, lines, pistes_rect);
 
-  display_rect(img, symbols_rect, 0x0000ff);
-  display_rect(img, pistes_rect, 0xff0000);
+ /* display_rect(img, symbols_rect, 0x0000ff);
+  display_rect(img, pistes_rect, 0xff0000);*/
   for (size_t k = 0; k < symbols_rect.size(); ++k)
   {
     Symbol s;

@@ -4,6 +4,7 @@
 # include <opencv/cv.h>
 # include <opencv/highgui.h>
 # include "symbol_detection.hh"
+# include "tools.hh"
 
 class Ocr
 {
@@ -11,6 +12,7 @@ class Ocr
     Ocr(cv::Mat* img, std::vector<Symbol>* vsym);
     void findGKeys();
     void findFKeys();
+    std::vector<Symbol> findCandidates();
   private:
     cv::Mat* img_;
     std::vector<Symbol>* vsym_;
