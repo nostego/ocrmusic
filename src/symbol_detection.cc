@@ -80,6 +80,29 @@ void filter_bbox(std::vector<cv::Rect>& boundRect,
   filter(boundRect, del);
 }
 
+void dispatch_keys(std::vector<cv::Rect>& pistes,
+		   std::vector<Symbol>& symbols,
+		   std::vector<Symbol>& keys)
+{
+  for (size_t k = 0; k < pistes.size(); ++k)
+  {
+    int min = 100000;
+    int imin = 0;
+
+    for (size_t i = 0; i < symbols.size(); ++i)
+    {
+      if (collide(symbols[i].rect, pistes[k]) &&
+	  (min > symbols[i].rect.x))
+      {
+	min = symbols[i].rect.x;
+	imin = i;
+      }
+    }
+    keys.push_back(symbols[imin]);
+    symbols.erase(symbols.begin() + imin);
+  }
+}
+
 void remove_pistes(cv::Mat& img,
                    std::vector<cv::Rect>& pistes_rect)
 {
@@ -134,13 +157,13 @@ std::vector<cv::Rect> get_symbols_rect(cv::Mat& ret,
   return symbols_rect;
 }
 
-std::vector<Symbol> detect_symbols(cv::Mat& img,
-                                   std::vector<Line>& lines)
+void detect_symbols(cv::Mat& img,
+		    std::vector<Line>& lines,
+		    std::vector<Symbol>& symbols,
+		    std::vector<cv::Rect>& pistes_rect)
 {
   cv::Mat ret(img.size(), CV_8UC1);
-  std::vector<Symbol> symbols;
   std::vector<cv::Rect> symbols_rect;
-  std::vector<cv::Rect> pistes_rect;
 
   symboldetection_preprocess(img, ret, lines);
   pistes_rect = get_piste_rect(lines, ret);
@@ -154,11 +177,4 @@ std::vector<Symbol> detect_symbols(cv::Mat& img,
     s.pos = -1;
     symbols.push_back(s);
   }
-
-  //display_lines(img, lines, 0x00ff00);
-  display_rect(img, symbols_rect, 0x0000ff);
-  display_rect(img, pistes_rect, 0xff0000);
-  //display(img, 700);
-
-  return symbols;
 }
