@@ -32,7 +32,7 @@ int main(int argc, char** argv)
     lines = detect_lines(img, max_rot);
     display_lines(img, lines, 0x00ff00);
     std::vector<Symbol> symbols = detect_symbols(img, lines);
-    Ocr ocr (&img, &symbols);
+    Ocr ocr (&img, symbols);
     std::cout << "Number of symbols = " << symbols.size() << std::endl;
     display(img, 600);
     //imwrite("output.png", img);
