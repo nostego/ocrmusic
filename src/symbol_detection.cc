@@ -12,6 +12,8 @@ void symboldetection_preprocess(cv::Mat& img,
 
   cv::dilate(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
   cv::erode(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
+
+  //display(ret, 600);
 }
 
 std::vector<cv::Rect> get_piste_rect(std::vector<Line>& lines,
