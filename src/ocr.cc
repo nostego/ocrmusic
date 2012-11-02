@@ -1,7 +1,7 @@
 #include "ocr.hh"
 
 Ocr::Ocr(cv::Mat* img)
-  img_(img)
+  : img_(img)
 {
 }
 

@@ -1,5 +1,8 @@
 #ifndef OCR_HH
- #define OCR_HH
+# define OCR_HH
+
+# include <opencv/cv.h>
+# include <opencv/highgui.h>
 
 class Ocr
 {
