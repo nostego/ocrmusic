@@ -3,15 +3,17 @@
 
 # include <opencv/cv.h>
 # include <opencv/highgui.h>
+# include "symbol_detection.hh"
 
 class Ocr
 {
   public:
-    Ocr(cv::Mat* img);
+    Ocr(cv::Mat* img, std::vector<Symbol>* vsym);
     void findGKeys();
     void findFKeys();
   private:
     cv::Mat* img_;
+    std::vector<Symbol>* vsym_;
 };
 
 #endif

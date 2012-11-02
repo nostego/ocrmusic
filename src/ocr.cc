@@ -1,7 +1,8 @@
 #include "ocr.hh"
 
-Ocr::Ocr(cv::Mat* img)
-  : img_(img)
+Ocr::Ocr(cv::Mat* img, std::vector<Symbol>* vsym)
+  : img_(img),
+    vsym_(vsym)
 {
 }
 

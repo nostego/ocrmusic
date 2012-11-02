@@ -1,5 +1,6 @@
 #include "symbol_detection.hh"
 #include "tools.hh"
+#include "ocr.hh"
 
 void symboldetection_preprocess(cv::Mat& img,
                                 cv::Mat& ret,
@@ -81,6 +82,7 @@ std::vector<cv::Rect> get_symbols_rect(cv::Mat& ret,
 std::vector<Symbol> detect_symbols(cv::Mat& img,
                                    std::vector<Line>& lines)
 {
+  Ocr* ocr = 0;
   cv::Mat ret(img.size(), CV_8UC1);
   std::vector<Symbol> symbols;
   std::vector<cv::Rect> symbols_rect;
@@ -100,6 +102,7 @@ std::vector<Symbol> detect_symbols(cv::Mat& img,
     s.pos = -1;
     symbols.push_back(s);
   }
+  ocr = new Ocr(&img, &symbols);
   display(img, 700);
   return symbols;
 }
