@@ -99,8 +99,9 @@ void remove_lines(cv::Mat& img,
 
   display_lines(mask, lines, 0xff0000);
   cv::threshold(mask, mask, 150.0, 255.0, cv::THRESH_BINARY_INV);
-  cv::inpaint(img, mask, img, 3, INPAINT_TELEA | INPAINT_NS);
-  cv::threshold(img, img, 30.0, 255.0, cv::THRESH_BINARY);
+  cv::inpaint(img, mask, img, 2, INPAINT_TELEA | INPAINT_NS);
+   //lesser thresh = more line
+  cv::threshold(img, img, 80.0, 255.0, cv::THRESH_BINARY);
   //display(img, 700);
 }
 

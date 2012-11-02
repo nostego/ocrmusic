@@ -9,11 +9,9 @@ void symboldetection_preprocess(cv::Mat& img,
   cv::cvtColor(img, ret, CV_RGB2GRAY);
   cv::threshold(ret, ret, 195.0, 255.0, cv::THRESH_BINARY_INV);
   remove_lines(ret, lines);
+
   cv::dilate(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
-  //cv::medianBlur(ret, ret, 3);
-  //cv::erode(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
-  cv::imwrite("noline.png", ret);
-//  display(ret, 600);
+  cv::erode(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
 }
 
 std::vector<cv::Rect> get_piste_rect(std::vector<Line>& lines,
@@ -52,7 +50,7 @@ void filter_bbox(std::vector<cv::Rect>& boundRect,
 
     del[i] = (boundRect[i].height > piste_height * 2.0) ||
       (boundRect[i].x < 10);
-
+    
     for (size_t u = 0; u < pistes_rect.size(); ++u)
       onpiste |= collide(pistes_rect[u], boundRect[i]);
     del[i] |= !onpiste;
@@ -102,7 +100,5 @@ std::vector<Symbol> detect_symbols(cv::Mat& img,
     s.pos = -1;
     symbols.push_back(s);
   }
-  ocr = new Ocr(&img, &symbols);
-  display(img, 700);
   return symbols;
 }
