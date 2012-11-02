@@ -49,6 +49,27 @@ void display_rect(cv::Mat& img,
   }
 }
 
+void display_onerect(cv::Mat& img,
+                     cv::Rect boundRect,
+                     int rgb)
+{
+  cv::Scalar sc;
+
+  sc[0] = rgb & 0x0000ff;
+  sc[1] = rgb & 0x00ff00;
+  sc[2] = rgb & 0xff0000;
+
+  cv::Point pt1;
+  cv::Point pt2;
+
+  pt1.x = boundRect.x;
+  pt1.y = boundRect.y;
+  pt2.x = boundRect.x + boundRect.width;
+  pt2.y = boundRect.y + boundRect.height;
+
+  cv::rectangle(img, pt1, pt2, sc, 1 + img.size().height / 1000);
+}
+
 void magicwand(cv::Mat&img,
                int x,
                int y,
@@ -101,7 +122,7 @@ std::vector<cv::Rect> get_bounding_box(cv::Mat& ret)
     approxPolyDP(cv::Mat(contours[i]), contours_poly[i], 3, true);
 
     std::vector<cv::Point> tmp;
-    
+
     for (size_t k = 0; k < contours_poly[i].size(); ++k)
       if (255 == ret.at<uchar>(contours_poly[i][k]))
 	magicwand(ret, contours_poly[i][k].x,
