@@ -7,6 +7,7 @@
 #include "line_detection.hh"
 #include "symbol_detection.hh"
 #include "tools.hh"
+#include "ocr.hh"
 
 using namespace cv;
 
@@ -32,6 +33,9 @@ int main(int argc, char** argv)
     std::cout << lines.size() << std::endl;
     std::vector<Symbol> syms = detect_symbols(img, lines);
     std::cout << syms.size() << std::endl;
+    //Ocr ocr (&img, &syms);
+    //display(img, 600);
+
   }
   return 0;
 }

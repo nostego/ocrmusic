@@ -6,6 +6,9 @@
 # include <vector>
 # include <queue>
 
+bool isvalid(cv::Mat& img,
+	     int x,
+	     int y);
 void display(cv::Mat& img,
              double target_display_w = 0);
 void magicwand(cv::Mat&img,

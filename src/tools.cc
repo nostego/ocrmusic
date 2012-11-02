@@ -1,5 +1,15 @@
 #include "tools.hh"
 
+bool isvalid(cv::Mat& img,
+	     int x,
+	     int y)
+{
+  return ((x >= 0) &&
+	  (y >= 0) &&
+	  (x < img.size().width) &&
+	  (y < img.size().height));
+}
+
 void display(cv::Mat& img,
              double target_display_w)
 {
