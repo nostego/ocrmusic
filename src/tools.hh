@@ -11,7 +11,8 @@ void display(cv::Mat& img,
 void magicwand(cv::Mat&img,
                int x,
                int y,
-               std::vector<cv::Point>& points);
+               std::vector<cv::Point>& points,
+	       bool* visited);
 
 template <typename T>
 void filter(std::vector<T>& v,

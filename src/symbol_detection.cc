@@ -13,6 +13,9 @@ void symboldetection_preprocess(cv::Mat& img,
   cv::dilate(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
   cv::erode(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
 
+  //cv::erode(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
+  //cv::dilate(ret, ret, cv::Mat(cv::Size(2, 2), CV_8UC1));
+
   //display(ret, 600);
 }
 
@@ -52,7 +55,7 @@ void filter_bbox(std::vector<cv::Rect>& boundRect,
 
     del[i] = (boundRect[i].height > piste_height * 2.0) ||
       (boundRect[i].x < 10);
-    
+
     for (size_t u = 0; u < pistes_rect.size(); ++u)
       onpiste |= collide(pistes_rect[u], boundRect[i]);
     del[i] |= !onpiste;
@@ -82,7 +85,6 @@ std::vector<cv::Rect> get_symbols_rect(cv::Mat& ret,
 std::vector<Symbol> detect_symbols(cv::Mat& img,
                                    std::vector<Line>& lines)
 {
-  Ocr* ocr = 0;
   cv::Mat ret(img.size(), CV_8UC1);
   std::vector<Symbol> symbols;
   std::vector<cv::Rect> symbols_rect;
@@ -91,7 +93,6 @@ std::vector<Symbol> detect_symbols(cv::Mat& img,
   symboldetection_preprocess(img, ret, lines);
   pistes_rect = get_piste_rect(lines, ret);
   symbols_rect = get_symbols_rect(ret, lines, pistes_rect);
-
   display_rect(img, symbols_rect, 0x0000ff);
   display_rect(img, pistes_rect, 0xff0000);
   for (size_t k = 0; k < symbols_rect.size(); ++k)
@@ -102,5 +103,7 @@ std::vector<Symbol> detect_symbols(cv::Mat& img,
     s.pos = -1;
     symbols.push_back(s);
   }
+  //display(img, 700);
+
   return symbols;
 }
