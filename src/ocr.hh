@@ -10,8 +10,7 @@ class Ocr
 {
   public:
     Ocr(cv::Mat* img, std::vector<Symbol>* vsym);
-    void findGKeys();
-    void findFKeys();
+    void findKeys(std::vector<Symbol>& choosen);
     std::vector<Symbol> findCandidates();
   private:
     cv::Mat* img_;
