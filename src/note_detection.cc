@@ -14,33 +14,7 @@ void notedetection_preprocess(cv::Mat& img,
   remove_pistes(ret, pistes);
   imshow("lol", ret);
 }
-/*
-int count_ellipse(cv::Mat& img,
-		   int piste_height)
-{
-  int er = piste_height / 12 - 1;
-  er = 5;
-  cv::Mat ret(img.clone());
 
-  std::cout << "er = " << er << std::endl;
-  myerode(img, ret, cv::Size(er, er));
-  cv::dilate(ret, ret, cv::Mat(cv::Size(er, er), CV_8UC1));
-  //mydilate(ret, ret, cv::Size(2, 2));
-  std::vector<cv::Rect> ellipses = get_bounding_box(ret);
-
-
-  bool del[ellipses.size()];
-
-  for (size_t k = 0; k < ellipses.size(); ++k)
-  {
-    del[k] = ellipses[k].width > ellipses[k].height * 2;
-  }
-  //filter(ellipses, del);
-  std::cout << ellipses.size() << std::endl;
-  //display(ret);
-  return ellipses.size();
-}
-*/
 bool isnote(cv::Mat& img,
 	    int piste_height)
 {
@@ -69,6 +43,7 @@ bool isnote(cv::Mat& img,
       break;
     }
   }
+
   int diff = img.size().width - img.size().height;
   bool isWhite = img.at<uchar>(img.size().height / 2, img.size().width / 2) == 0;
   return (isWhite && (diff < 25 && diff > 0)) || hasverticalline;
@@ -97,4 +72,6 @@ void detect_notes(cv::Mat& img,
     else
       display_onerect(img, symbols[k].rect, 0xff0000);
   }
+  display(img, 700);
+  (void)notes;
 }

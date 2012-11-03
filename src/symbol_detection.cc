@@ -57,6 +57,7 @@ void filter_bbox(std::vector<cv::Rect>& boundRect,
                  std::vector<cv::Rect>& pistes_rect)
 {
   bool del[boundRect.size()];
+  int epsilon = 5;
 
   (void)lines;
   for (size_t i = 0; i < boundRect.size(); ++i)
@@ -70,13 +71,50 @@ void filter_bbox(std::vector<cv::Rect>& boundRect,
       del[i] = true;
   }
   filter(boundRect, del);
+
   for (size_t i = 0; i < boundRect.size(); ++i)
     del[i] = false;
   for (size_t i = 0; i < boundRect.size(); ++i)
     for (size_t j = i + 1; j < boundRect.size(); ++j)
-      if ((boundRect[j].x == boundRect[i].x) &&
-          (boundRect[j].y == boundRect[i].y))
+      if (((boundRect[j].x == boundRect[i].x) &&
+	   (boundRect[j].y == boundRect[i].y)))
         del[j] = true;
+  filter(boundRect, del);
+
+  
+  for (size_t i = 0; i < boundRect.size(); ++i)
+    del[i] = false;
+  for (size_t i = 0; i < boundRect.size(); ++i)
+    for (size_t j = i + 1; j < boundRect.size(); ++j)
+      if ((i != j) && (!del[j]) && (!del[i]) &&
+	  collide(boundRect[i], boundRect[j]))
+      {
+	
+	int xmin = std::min(boundRect[i].x, boundRect[j].x);
+	int ymin = std::min(boundRect[i].y, boundRect[j].y);
+	int xmax = std::max(boundRect[i].x + boundRect[i].width, boundRect[j].x + boundRect[j].width);
+	int ymax = std::max(boundRect[i].y + boundRect[i].height, boundRect[j].y + boundRect[j].height);
+
+	boundRect[i].x = xmin;
+	boundRect[i].width = xmax - xmin;
+	boundRect[i].y = ymin;
+	boundRect[i].height = ymax - ymin;
+
+        del[j] = true;
+      }
+  filter(boundRect, del);
+
+  for (size_t i = 0; i < boundRect.size(); ++i)
+    del[i] = false;
+  for (size_t i = 0; i < boundRect.size(); ++i)
+    for (size_t j = 0; j < boundRect.size(); ++j)
+      if ((i != j) &&
+	  (fabs(boundRect[i].x + boundRect[i].width - boundRect[j].x) < epsilon) &&
+	  (boundRect[i].y == boundRect[j].y))
+      {
+	boundRect[i].width = boundRect[j].x + boundRect[j].width - boundRect[i].x;
+	del[j] = true;
+      }
   filter(boundRect, del);
 }
 
@@ -176,7 +214,7 @@ void filter_symbols(std::vector<Symbol>& symbols,
     for (size_t u = 0; u < symbols.size(); ++u)
     {
       del[u] = false;
-      if (k == symbols[u].piste)
+      if ((int)k == symbols[u].piste)
         sym_in_piste.push_back(symbols[u]);
     }
 
@@ -219,7 +257,7 @@ void detect_symbols(cv::Mat& img,
     s.pos = -1;
     s.piste = -1;
 
-    for (int u = 0; u < pistes_rect.size(); ++u)
+    for (size_t u = 0; u < pistes_rect.size(); ++u)
       if (collide(s.rect, pistes_rect[u]))
       {
         s.piste = u;
