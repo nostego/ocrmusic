@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 
     //Ocr ocr (&img, keys);
     //display_lines(img, lines, 0xff0000);
-    display(img, 700);
+    //display(img, 700);
     imwrite("output.png", img);
   }
   return 0;

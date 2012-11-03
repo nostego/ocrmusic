@@ -7,6 +7,7 @@
 struct Symbol
 {
   int pos;
+  int piste;
   cv::Rect rect;
 };
 

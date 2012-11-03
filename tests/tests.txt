@@ -11,3 +11,5 @@ huge.png 60 -1
 huge2.png 60 -1
 rot2_normal.png 60 -1
 rot_normal.png 60 -1
+fat_alex.png -1 -1
+huge_alex.png -1 -1

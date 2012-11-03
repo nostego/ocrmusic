@@ -81,8 +81,8 @@ void filter_bbox(std::vector<cv::Rect>& boundRect,
 }
 
 void dispatch_keys(std::vector<cv::Rect>& pistes,
-		   std::vector<Symbol>& symbols,
-		   std::vector<Symbol>& keys)
+                   std::vector<Symbol>& symbols,
+                   std::vector<Symbol>& keys)
 {
   for (size_t k = 0; k < pistes.size(); ++k)
   {
@@ -92,10 +92,10 @@ void dispatch_keys(std::vector<cv::Rect>& pistes,
     for (size_t i = 0; i < symbols.size(); ++i)
     {
       if (collide(symbols[i].rect, pistes[k]) &&
-	  (min > symbols[i].rect.x))
+          (min > symbols[i].rect.x))
       {
-	min = symbols[i].rect.x;
-	imin = i;
+        min = symbols[i].rect.x;
+        imin = i;
       }
     }
     keys.push_back(symbols[imin]);
@@ -125,7 +125,7 @@ void remove_pistes(cv::Mat& img,
         break;
       }
       else if ((k > pistes_rect[piste].y + pistes_rect[piste].height) &&
-	       (min > fabs(k - pistes_rect[piste].y + pistes_rect[piste].height)))
+               (min > fabs(k - pistes_rect[piste].y + pistes_rect[piste].height)))
       {
         min = fabs(k - pistes_rect[piste].y + pistes_rect[piste].height);
         decidor = piste;
@@ -157,10 +157,52 @@ std::vector<cv::Rect> get_symbols_rect(cv::Mat& ret,
   return symbols_rect;
 }
 
+bool by_x(Symbol a,
+          Symbol b)
+{
+  return (a.rect.x <= b.rect.x);
+}
+
+void filter_symbols(std::vector<Symbol>& symbols,
+                    std::vector<cv::Rect>& pistes_rect)
+{
+  std::vector<Symbol> sym_in_piste;
+  double piste_height = pistes_rect[0].height;
+  bool del[symbols.size()];
+
+  for (size_t k = 0; k < pistes_rect.size(); ++k)
+  {
+    sym_in_piste.clear();
+    for (size_t u = 0; u < symbols.size(); ++u)
+    {
+      del[u] = false;
+      if (k == symbols[u].piste)
+        sym_in_piste.push_back(symbols[u]);
+    }
+
+    sort(sym_in_piste.begin(), sym_in_piste.end(), by_x);
+    for (size_t u = 0; u < sym_in_piste.size(); ++u)
+      if (sym_in_piste[u].rect.height > piste_height * 0.5)
+      {
+        for (size_t i = 0; i < u; ++i)
+          for (size_t isym = 0; isym < symbols.size(); ++isym)
+            if ((sym_in_piste[i].rect.x == symbols[isym].rect.x) &&
+                (sym_in_piste[i].rect.y == symbols[isym].rect.y))
+            {
+              del[isym] = true;
+              break;
+            }
+        break;
+      }
+    filter(symbols, del);
+  }
+
+}
+
 void detect_symbols(cv::Mat& img,
-		    std::vector<Line>& lines,
-		    std::vector<Symbol>& symbols,
-		    std::vector<cv::Rect>& pistes_rect)
+                    std::vector<Line>& lines,
+                    std::vector<Symbol>& symbols,
+                    std::vector<cv::Rect>& pistes_rect)
 {
   cv::Mat ret(img.size(), CV_8UC1);
   std::vector<cv::Rect> symbols_rect;
@@ -175,6 +217,15 @@ void detect_symbols(cv::Mat& img,
 
     s.rect = symbols_rect[k];
     s.pos = -1;
+    s.piste = -1;
+
+    for (int u = 0; u < pistes_rect.size(); ++u)
+      if (collide(s.rect, pistes_rect[u]))
+      {
+        s.piste = u;
+        break;
+      }
     symbols.push_back(s);
   }
+  filter_symbols(symbols, pistes_rect);
 }
