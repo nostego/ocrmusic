@@ -189,7 +189,6 @@ std::vector<cv::Rect> get_symbols_rect(cv::Mat& ret,
 
   remove_pistes(ret, pistes_rect);
   remove_lines(ret, lines);
-  cv::dilate(ret, ret, cv::Mat(cv::Size(5, 5), CV_8UC1));
   symbols_rect = get_bounding_box(ret);
   filter_bbox(symbols_rect, lines, pistes_rect);
   return symbols_rect;
