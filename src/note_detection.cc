@@ -14,7 +14,7 @@ void notedetection_preprocess(cv::Mat& img,
   remove_pistes(ret, pistes);
   imshow("lol", ret);
 }
-
+/*
 int count_ellipse(cv::Mat& img,
 		   int piste_height)
 {
@@ -40,6 +40,7 @@ int count_ellipse(cv::Mat& img,
   //display(ret);
   return ellipses.size();
 }
+*/
 bool isnote(cv::Mat& img,
 	    int piste_height)
 {
@@ -62,14 +63,15 @@ bool isnote(cv::Mat& img,
 	current = 0;
       }
     }
-    if (longest >= 0.3 * piste_height)
+    if (longest >= 0.5 * piste_height)
     {
       hasverticalline = true;
       break;
     }
   }
-  //return count_ellipse(img, piste_height) > 0 || hasverticalline;
-  return longest > 50;
+  int diff = img.size().width - img.size().height;
+  bool isWhite = img.at<uchar>(img.size().height / 2, img.size().width / 2) == 0;
+  return (isWhite && (diff < 25 && diff > 0)) || hasverticalline;
 }
 
 void detect_notes(cv::Mat& img,
