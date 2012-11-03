@@ -14,12 +14,37 @@ void notedetection_preprocess(cv::Mat& img,
   remove_pistes(ret, pistes);
 }
 
+int count_ellipse(cv::Mat& img,
+		   int piste_height)
+{
+  int er = piste_height / 12 - 1;
+  er = 5;
+  cv::Mat ret(img.clone());
+
+  std::cout << "er = " << er << std::endl;
+  myerode(img, ret, cv::Size(er, er));
+  cv::dilate(ret, ret, cv::Mat(cv::Size(er, er), CV_8UC1));
+  //mydilate(ret, ret, cv::Size(2, 2));
+  std::vector<cv::Rect> ellipses = get_bounding_box(ret);
+
+
+  bool del[ellipses.size()];
+
+  for (size_t k = 0; k < ellipses.size(); ++k)
+  {
+    del[k] = ellipses[k].width > ellipses[k].height * 2;
+  }
+  //filter(ellipses, del);
+  std::cout << ellipses.size() << std::endl;
+  display(ret);
+  return ellipses.size();
+}
 bool isnote(cv::Mat& img,
 	    int piste_height)
 {
   bool hasverticalline = false;
 
-  cv::dilate(img, img, cv::Mat(cv::Size(2, 2), CV_8UC1));
+  //cv::dilate(img, img, cv::Mat(cv::Size(2, 2), CV_8UC1));
   for (int x = 0; x < img.size().width; ++x)
   {
     int longest = 0;
@@ -35,13 +60,14 @@ bool isnote(cv::Mat& img,
 	current = 0;
       }
     }
-    if (longest >= 0.5 * piste_height)
+    if (longest >= 0.3 * piste_height)
     {
       hasverticalline = true;
       break;
     }
   }
-  return hasverticalline;
+  return count_ellipse(img, piste_height) > 0;
+  //return hasverticalline;
 }
 
 void detect_notes(cv::Mat& img,
@@ -62,7 +88,8 @@ void detect_notes(cv::Mat& img,
     for (int y = 0; y < symbol_img.size().height; ++y)
       for (int x = 0; x < symbol_img.size().width; ++x)
 	symbol_img.at<uchar>(y, x) = ret.at<uchar>(y + symbols[k].rect.y, x + symbols[k].rect.x);
-    if (isnote(symbol_img, pistes[0].height))
+    //if (isnote(symbol_img, pistes[0].height))
+    if (false)
       display_onerect(img, symbols[k].rect, 0x0000ff);
     else
       display_onerect(img, symbols[k].rect, 0xff0000);

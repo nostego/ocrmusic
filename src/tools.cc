@@ -1,13 +1,55 @@
 #include "tools.hh"
 
 bool isvalid(cv::Mat& img,
-	     int x,
-	     int y)
+             int x,
+             int y)
 {
   return ((x >= 0) &&
-	  (y >= 0) &&
-	  (x < img.size().width) &&
-	  (y < img.size().height));
+          (y >= 0) &&
+          (x < img.size().width) &&
+          (y < img.size().height));
+}
+
+void myerode(cv::Mat& img,
+             cv::Mat& ret,
+             cv::Size si)
+{
+  ret = img.clone();
+  for (int y = 0; y < img.size().height; ++y)
+    for (int x = 0; x < img.size().width; ++x)
+    {
+      bool okay = img.at<uchar>(y, x) / 255;
+
+      for (int dy = y - si.height; dy < y + si.height; ++dy)
+        for (int dx = x - si.width; dx < x + si.width; ++dx)
+          if (((dx != x) || (dy != y)) && isvalid(img, dx, dy))
+            okay &= img.at<uchar>(dy, dx) / 255;
+      if (okay)
+        ret.at<uchar>(y, x) = 255;
+      else
+        ret.at<uchar>(y, x) = 0;
+    }
+}
+
+void mydilate(cv::Mat& img,
+	      cv::Mat& ret,
+	      cv::Size si)
+{
+  ret = img.clone();
+  for (int y = 0; y < img.size().height; ++y)
+    for (int x = 0; x < img.size().width; ++x)
+    {
+      bool okay = img.at<uchar>(y, x) / 255;
+
+      for (int dy = y - si.height; dy < y + si.height; ++dy)
+        for (int dx = x - si.width; dx < x + si.width; ++dx)
+          if (((dx != x) || (dy != y)) && isvalid(img, dx, dy))
+            okay |= img.at<uchar>(dy, dx) / 255;
+      if (okay)
+        ret.at<uchar>(y, x) = 255;
+      else
+        ret.at<uchar>(y, x) = 0;
+    }
 }
 
 void display(cv::Mat& img,
@@ -106,7 +148,7 @@ void magicwand(cv::Mat&img,
         f.push(cv::Point(p.x + 1, p.y));
         f.push(cv::Point(p.x, p.y - 1));
         f.push(cv::Point(p.x, p.y + 1));
-	f.push(cv::Point(p.x - 1, p.y - 1));
+        f.push(cv::Point(p.x - 1, p.y - 1));
         f.push(cv::Point(p.x + 1, p.y - 1));
         f.push(cv::Point(p.x - 1, p.y + 1));
         f.push(cv::Point(p.x + 1, p.y + 1));

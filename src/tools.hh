@@ -6,6 +6,13 @@
 # include <vector>
 # include <queue>
 
+void myerode(cv::Mat& in,
+	      cv::Mat& out,
+	      cv::Size si);
+
+void mydilate(cv::Mat& in,
+	      cv::Mat& out,
+	      cv::Size si);
 bool isvalid(cv::Mat& img,
 	     int x,
 	     int y);
