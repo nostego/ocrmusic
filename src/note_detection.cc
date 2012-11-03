@@ -71,6 +71,6 @@ void detect_notes(cv::Mat& img,
     else
       display_onerect(img, symbols[k].rect, 0xff0000);
   }
-  display(img, 700);
+  //display(img, 700);
   (void)notes;
 }

@@ -35,15 +35,19 @@ int main(int argc, char** argv)
       max_rot = 0.001;
 
     lines = detect_lines(img, max_rot);
-    detect_symbols(img, lines, symbols, pistes);
-    dispatch_keys(pistes, symbols, keys);
-    detect_notes(img, lines, pistes, symbols, notes);
+    if (lines.size() > 4)
+    {
+      detect_symbols(img, lines, symbols, pistes);
+      dispatch_keys(pistes, symbols, keys);
+      detect_notes(img, lines, pistes, symbols, notes);
+      Ocr ocr (&img, keys);
+    }
 
     std::cout << lines.size() << std::endl;
     std::cout << symbols.size() << std::endl;
-    //Ocr ocr (&img, &symbols);
-    //display(img, 600);
 
+    display(img, 700);
+    imwrite("output.png", img);
   }
   return 0;
 }

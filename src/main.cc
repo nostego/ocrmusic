@@ -35,13 +35,15 @@ int main(int argc, char** argv)
       max_rot = 0.001;
 
     lines = detect_lines(img, max_rot);
-    detect_symbols(img, lines, symbols, pistes);
-    dispatch_keys(pistes, symbols, keys);
-    detect_notes(img, lines, pistes, symbols, notes);
+    if (lines.size() > 4)
+    {
+      detect_symbols(img, lines, symbols, pistes);
+      dispatch_keys(pistes, symbols, keys);
+      detect_notes(img, lines, pistes, symbols, notes);
+      Ocr ocr (&img, keys);
+    }
 
-    //Ocr ocr (&img, keys);
-    //display_lines(img, lines, 0xff0000);
-    //display(img, 700);
+    display(img, 700);
     imwrite("output.png", img);
   }
   return 0;

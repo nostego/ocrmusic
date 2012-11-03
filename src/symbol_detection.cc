@@ -77,11 +77,11 @@ void filter_bbox(std::vector<cv::Rect>& boundRect,
   for (size_t i = 0; i < boundRect.size(); ++i)
     for (size_t j = i + 1; j < boundRect.size(); ++j)
       if (((boundRect[j].x == boundRect[i].x) &&
-	   (boundRect[j].y == boundRect[i].y)))
+	  (boundRect[j].y == boundRect[i].y)) ||
+	  (boundRect[j].height > boundRect[j].width * 10))
         del[j] = true;
   filter(boundRect, del);
 
-  
   for (size_t i = 0; i < boundRect.size(); ++i)
     del[i] = false;
   for (size_t i = 0; i < boundRect.size(); ++i)
@@ -219,7 +219,9 @@ void filter_symbols(std::vector<Symbol>& symbols,
 
     sort(sym_in_piste.begin(), sym_in_piste.end(), by_x);
     for (size_t u = 0; u < sym_in_piste.size(); ++u)
-      if (sym_in_piste[u].rect.height > piste_height * 0.5)
+      if ((sym_in_piste[u].rect.height > piste_height * 0.5) &&
+	  (sym_in_piste[u].rect.width > sym_in_piste[u].rect.height /
+	   3.0))
       {
         for (size_t i = 0; i < u; ++i)
           for (size_t isym = 0; isym < symbols.size(); ++isym)

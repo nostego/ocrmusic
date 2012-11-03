@@ -32,7 +32,6 @@ void filter_lines(std::vector<Line>& lines,
   double mean;
 
   sort(lines.begin(), lines.end(), order_y);
-
   for (size_t i = 0; i < lines.size(); ++i)
     todel[i] = true;
 
@@ -54,10 +53,11 @@ void filter_lines(std::vector<Line>& lines,
   }
 
   filter(lines, todel);
+  
   for (size_t i = 0; i < lines.size(); ++i)
     todel[i] = true;
 
-  for (size_t i = 0; i < lines.size() - 4; ++i)
+  for (int i = 0; i < (int)lines.size() - 4; ++i)
   {
     bool is_valid = true;
 
