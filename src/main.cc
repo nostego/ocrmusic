@@ -39,8 +39,8 @@ int main(int argc, char** argv)
     {
       detect_symbols(img, lines, symbols, pistes);
       dispatch_keys(pistes, symbols, keys);
-      detect_notes(img, lines, pistes, symbols, notes);
       Ocr ocr (&img, keys);
+      detect_notes(img, lines, pistes, symbols, notes);
     }
 
     display(img, 700);

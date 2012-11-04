@@ -39,14 +39,13 @@ int main(int argc, char** argv)
     {
       detect_symbols(img, lines, symbols, pistes);
       dispatch_keys(pistes, symbols, keys);
-      detect_notes(img, lines, pistes, symbols, notes);
       Ocr ocr (&img, keys);
+      detect_notes(img, lines, pistes, symbols, notes);
     }
 
     std::cout << lines.size() << std::endl;
     std::cout << symbols.size() << std::endl;
 
-    display(img, 700);
     imwrite("output.png", img);
   }
   return 0;

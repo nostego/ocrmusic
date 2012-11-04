@@ -24,22 +24,26 @@ std::vector<cv::Rect> get_piste_rect(std::vector<Line>& lines,
   {
     cv::Rect r;
 
-    for (int u = 0; u < img.size().width; ++u)
-      tmp[u] = 0;
+    r.x = img.size().width;
 
-    for (int x = 0; x < img.size().width; ++x)
+    for (int lin = 0; lin < 5; ++lin)
     {
-      for (int range = -drange; range < drange; ++range)
-        if (isvalid(img, x + range, lines[k].y))
-          tmp[x] += img.at<uchar>(lines[k].y, x + range) / 255;
-    }
+      for (int u = 0; u < img.size().width; ++u)
+        tmp[u] = 0;
 
-    r.x = 0;
-    while (r.x + drange < img.size().width)
-    {
-      if (tmp[r.x + drange] >= drange * 2)
-        break;
-      ++r.x;
+      for (int x = 0; x < img.size().width; ++x)
+        for (int range = -drange; range < drange; ++range)
+          if (isvalid(img, x + range, lines[k + lin].y))
+            tmp[x] += img.at<uchar>(lines[k + lin].y, x + range) / 255;
+
+      int dx = 0;
+      while (dx + drange < img.size().width)
+      {
+        if (tmp[dx + drange] >= drange * 2.0)
+          break;
+        ++dx;
+      }
+      r.x = std::min(r.x, dx);
     }
     r.width = img.size().width;
     r.y = lines[k].y - interlap;
@@ -72,33 +76,44 @@ void filter_bbox(std::vector<cv::Rect>& boundRect,
   }
   filter(boundRect, del);
 
+
   for (size_t i = 0; i < boundRect.size(); ++i)
     del[i] = false;
   for (size_t i = 0; i < boundRect.size(); ++i)
     for (size_t j = i + 1; j < boundRect.size(); ++j)
-      if (((boundRect[j].x == boundRect[i].x) &&
-	  (boundRect[j].y == boundRect[i].y)) ||
-	  (boundRect[j].height > boundRect[j].width * 10))
+      if ((boundRect[j].x == boundRect[i].x) &&
+          (boundRect[j].y == boundRect[i].y) &&
+          (boundRect[j].width == boundRect[i].width) &&
+          (boundRect[j].height == boundRect[i].height))
         del[j] = true;
   filter(boundRect, del);
+
+  for (size_t i = 0; i < boundRect.size(); ++i)
+    del[i] = false;
+
+  for (size_t j = 0; j < boundRect.size(); ++j)
+    if (boundRect[j].height > boundRect[j].width * 10)
+      del[j] = true;
+  filter(boundRect, del);
+
 
   for (size_t i = 0; i < boundRect.size(); ++i)
     del[i] = false;
   for (size_t i = 0; i < boundRect.size(); ++i)
     for (size_t j = i + 1; j < boundRect.size(); ++j)
       if ((i != j) && (!del[j]) && (!del[i]) &&
-	  collide(boundRect[i], boundRect[j]))
+          collide(boundRect[i], boundRect[j]))
       {
-	
-	int xmin = std::min(boundRect[i].x, boundRect[j].x);
-	int ymin = std::min(boundRect[i].y, boundRect[j].y);
-	int xmax = std::max(boundRect[i].x + boundRect[i].width, boundRect[j].x + boundRect[j].width);
-	int ymax = std::max(boundRect[i].y + boundRect[i].height, boundRect[j].y + boundRect[j].height);
 
-	boundRect[i].x = xmin;
-	boundRect[i].width = xmax - xmin;
-	boundRect[i].y = ymin;
-	boundRect[i].height = ymax - ymin;
+        int xmin = std::min(boundRect[i].x, boundRect[j].x);
+        int ymin = std::min(boundRect[i].y, boundRect[j].y);
+        int xmax = std::max(boundRect[i].x + boundRect[i].width, boundRect[j].x + boundRect[j].width);
+        int ymax = std::max(boundRect[i].y + boundRect[i].height, boundRect[j].y + boundRect[j].height);
+
+        boundRect[i].x = xmin;
+        boundRect[i].width = xmax - xmin;
+        boundRect[i].y = ymin;
+        boundRect[i].height = ymax - ymin;
 
         del[j] = true;
       }
@@ -109,11 +124,11 @@ void filter_bbox(std::vector<cv::Rect>& boundRect,
   for (size_t i = 0; i < boundRect.size(); ++i)
     for (size_t j = 0; j < boundRect.size(); ++j)
       if ((i != j) &&
-	  (fabs(boundRect[i].x + boundRect[i].width - boundRect[j].x) < epsilon) &&
-	  (boundRect[i].y == boundRect[j].y))
+          (fabs(boundRect[i].x + boundRect[i].width - boundRect[j].x) < epsilon) &&
+          (boundRect[i].y == boundRect[j].y))
       {
-	boundRect[i].width = boundRect[j].x + boundRect[j].width - boundRect[i].x;
-	del[j] = true;
+        boundRect[i].width = boundRect[j].x + boundRect[j].width - boundRect[i].x;
+        del[j] = true;
       }
   filter(boundRect, del);
 }
@@ -220,8 +235,8 @@ void filter_symbols(std::vector<Symbol>& symbols,
     sort(sym_in_piste.begin(), sym_in_piste.end(), by_x);
     for (size_t u = 0; u < sym_in_piste.size(); ++u)
       if ((sym_in_piste[u].rect.height > piste_height * 0.5) &&
-	  (sym_in_piste[u].rect.width > sym_in_piste[u].rect.height /
-	   3.0))
+          (sym_in_piste[u].rect.width > sym_in_piste[u].rect.height /
+           3.0))
       {
         for (size_t i = 0; i < u; ++i)
           for (size_t isym = 0; isym < symbols.size(); ++isym)
