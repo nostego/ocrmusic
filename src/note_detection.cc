@@ -33,19 +33,22 @@ bool isnote(cv::Mat& img,
       else
       {
 	longest = std::max(longest, current);
-	current = 0;
+        current = 0;
       }
     }
-    if (longest >= 0.5 * piste_height)
+    if (longest >= 0.4 * piste_height)
     {
       hasverticalline = true;
       break;
     }
   }
 
-  int diff = img.size().width - img.size().height;
+  float diff = (float) img.size().height / (float) img.size().width;
+  // FIXME: search in the MIDDLE of the note, not in the image.
   bool isWhite = img.at<uchar>(img.size().height / 2, img.size().width / 2) == 0;
-  return (isWhite && (diff < 25 && diff > 0)) || hasverticalline;
+
+  // IsWhite Or Height >> width And Verticale line.
+  return ((isWhite && abs(diff) < 3) || (diff >= 2.75 || hasverticalline));
 }
 
 void detect_notes(cv::Mat& img,
