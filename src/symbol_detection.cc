@@ -61,7 +61,7 @@ void filter_bbox(std::vector<cv::Rect>& boundRect,
                  std::vector<cv::Rect>& pistes_rect)
 {
   bool del[boundRect.size()];
-  int epsilon = 5;
+  int epsilon = pistes_rect[0].width * 0.005;
 
   (void)lines;
   for (size_t i = 0; i < boundRect.size(); ++i)

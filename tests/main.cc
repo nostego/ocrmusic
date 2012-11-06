@@ -47,7 +47,7 @@ int main(int argc, char** argv)
     std::cout << symbols.size() << std::endl;
 
     display(img, 700);
-    imwrite("output.png", img);
+    //imwrite("output.png", img);
   }
   return 0;
 }
