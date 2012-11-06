@@ -10,8 +10,8 @@ void notedetection_preprocess(cv::Mat& img,
   cv::cvtColor(img, ret, CV_RGB2GRAY);
   cv::threshold(ret, ret, 195.0, 255.0, cv::THRESH_BINARY_INV);
 
-  remove_lines(ret, lines);
   remove_pistes(ret, pistes);
+  remove_lines(ret, lines);
 }
 
 bool isnote(cv::Mat& img,

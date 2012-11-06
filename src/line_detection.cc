@@ -6,6 +6,69 @@
 
 using namespace cv;
 
+void neighbors(std::vector<Line>& mylines,
+               cv::Mat& img)
+{
+  double ratio = 0.6;
+  int marginerror = 1;
+
+  //normal3 bug sur y = 381
+  for (size_t k = 0; k < mylines.size(); ++k)
+  {
+    double a = (1.0 / ((-2.0 / M_PI) * mylines[k].angle)) + 1;
+    int errcount = 0;
+
+    while (1)
+    {
+      int energy = 0.0;
+
+      for (int x = 0; x < img.size().width; ++x)
+      {
+        int y = a * x + mylines[k].y + mylines[k].h;
+
+        if (y == 381)
+          std::cout << "OULA" << std::endl;
+
+        if ((y >= 0) && (y < img.size().height))
+          energy += (int)img.at<uchar>(y, x) / 255;
+      }
+      if (energy >= ratio * img.size().width)
+      {
+        errcount = 0;
+        ++mylines[k].h;
+      }
+      else
+        ++errcount;
+      if (errcount >= marginerror)
+        break;
+    }
+    errcount = 0;
+
+    while (1)
+    {
+      int energy = 0.0;
+
+      for (int x = 0; x < img.size().width; ++x)
+      {
+        int y = a * x + mylines[k].y - 1;
+
+        if ((y >= 0) && (y < img.size().height))
+          energy += (int)img.at<uchar>(y, x) / 255;
+      }
+      if ((energy >= ratio * img.size().width) && (mylines[k].y >= 1))
+      {
+        errcount = 0;
+        --mylines[k].y;
+        ++mylines[k].h;
+      }
+      else
+        ++errcount;
+      if (errcount >= marginerror)
+        break;
+    }
+  }
+}
+
 std::vector<Line> detect_lines(cv::Mat& img,
                                double max_rot)
 {
@@ -15,6 +78,7 @@ std::vector<Line> detect_lines(cv::Mat& img,
   linedetection_preprocess(img, ret);
   mylines = get_raw_lines(ret, max_rot);
   filter_lines(mylines, img.size().height);
+  neighbors(mylines, ret);
 
   return mylines;
 }
@@ -53,7 +117,7 @@ void filter_lines(std::vector<Line>& lines,
   }
 
   filter(lines, todel);
-  
+
   for (size_t i = 0; i < lines.size(); ++i)
     todel[i] = true;
 
@@ -100,9 +164,8 @@ void remove_lines(cv::Mat& img,
   display_lines(mask, lines, 0xff0000);
   cv::threshold(mask, mask, 150.0, 255.0, cv::THRESH_BINARY_INV);
   cv::inpaint(img, mask, img, 2, INPAINT_TELEA | INPAINT_NS);
-   //lesser thresh = more line
+  //lesser thresh = more line
   cv::threshold(img, img, 80.0, 255.0, cv::THRESH_BINARY);
-  //display(img, 700);
 }
 
 std::vector<Line> get_raw_lines(cv::Mat& img, double max_rot)
@@ -152,14 +215,18 @@ void display_lines(cv::Mat& img,
     Vec4i l;
     double a = (1.0 / ((-2.0 / M_PI) * mylines[i].angle)) + 1;
 
-    l[0] = 0;
-    l[1] = mylines[i].y;
-    l[2] = img.size().width;
-    l[3] = a * img.size().width + mylines[i].y;
-    line(img, Point(l[0], l[1]),
-         Point(l[2], l[3]),
-         Scalar(rgb & 0x0000ff, rgb & 0x00ff00, rgb & 0xff0000), 1 + img.size().height / 1000,
-         8);
+    for (size_t k = 0; k < mylines[i].h; ++k)
+    {
+      l[0] = 0;
+      l[1] = mylines[i].y + k;
+      l[2] = img.size().width;
+      l[3] = a * img.size().width + mylines[i].y + k;
+      line(img, Point(l[0], l[1]),
+           Point(l[2], l[3]),
+           Scalar(rgb & 0x0000ff, rgb & 0x00ff00, rgb & 0xff0000),
+           1,
+           8);
+    }
   }
 }
 
