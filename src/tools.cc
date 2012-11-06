@@ -31,6 +31,7 @@ void myerode(cv::Mat& img,
     }
 }
 
+
 void mydilate(cv::Mat& img,
 	      cv::Mat& ret,
 	      cv::Size si)

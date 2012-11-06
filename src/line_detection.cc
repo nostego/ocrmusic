@@ -31,7 +31,7 @@ void filter_lines(std::vector<Line>& lines,
   bool todel[lines.size()];
   double mean;
 
-  sort(lines.begin(), lines.end(), order_y);
+  mysort(lines, order_y);
   for (size_t i = 0; i < lines.size(); ++i)
     todel[i] = true;
 

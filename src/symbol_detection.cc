@@ -232,7 +232,8 @@ void filter_symbols(std::vector<Symbol>& symbols,
         sym_in_piste.push_back(symbols[u]);
     }
 
-    sort(sym_in_piste.begin(), sym_in_piste.end(), by_x);
+    mysort(sym_in_piste, by_x);
+
     for (size_t u = 0; u < sym_in_piste.size(); ++u)
       if ((sym_in_piste[u].rect.height > piste_height * 0.5) &&
           (sym_in_piste[u].rect.width > sym_in_piste[u].rect.height /

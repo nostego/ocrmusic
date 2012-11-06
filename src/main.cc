@@ -42,9 +42,8 @@ int main(int argc, char** argv)
       Ocr ocr (&img, keys);
       detect_notes(img, lines, pistes, symbols, notes);
     }
-
     display(img, 700);
-    imwrite("output.png", img);
+    //imwrite("output.png", img);
   }
   return 0;
 }
