@@ -20,6 +20,7 @@ bool isnote(cv::Mat& img,
   bool hasverticalline = false;
   int current;
   int longest;
+  int lonlongest = 0;
 
   for (int x = 0; x < img.size().width; ++x)
   {
@@ -29,14 +30,32 @@ bool isnote(cv::Mat& img,
     for (int y = 0; y < img.size().height; ++y)
     {
       if (255 == img.at<uchar>(y, x))
+      {
 	++current;
+      }
       else
       {
+        img.at<uchar>(y, x) = 0;
 	longest = std::max(longest, current);
+        lonlongest = std::max(longest, lonlongest);
         current = 0;
       }
     }
-    if (longest >= 0.4 * piste_height)
+    for (int y = img.size().height - 1; y >= 0; --y)
+    {
+      if (255 == img.at<uchar>(y, x))
+      {
+	++current;
+      }
+      else
+      {
+        img.at<uchar>(y, x) = 0;
+	longest = std::max(longest, current);
+        lonlongest = std::max(longest, lonlongest);
+        current = 0;
+      }
+    }
+    if (longest >= 0.5 * piste_height)
     {
       hasverticalline = true;
       break;
@@ -45,9 +64,10 @@ bool isnote(cv::Mat& img,
 
   float diff = (float) img.size().height / (float) img.size().width;
   // FIXME: search in the MIDDLE of the note, not in the image.
+  // FIXME: search if you have a Circle note !
   bool isWhite = img.at<uchar>(img.size().height / 2, img.size().width / 2) == 0;
 
-  // IsWhite Or Height >> width And Verticale line.
+  // IsWhite and shapped like a square Or Height >> width And Verticale line.
   return ((isWhite && abs(diff) < 3) || (diff >= 2.75 || hasverticalline));
 }
 
