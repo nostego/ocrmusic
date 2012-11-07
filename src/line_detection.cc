@@ -9,10 +9,9 @@ using namespace cv;
 void neighbors(std::vector<Line>& mylines,
                cv::Mat& img)
 {
-  double ratio = 0.6;
+  double ratio = 0.3;
   int marginerror = 1;
 
-  //normal3 bug sur y = 381
   for (size_t k = 0; k < mylines.size(); ++k)
   {
     double a = (1.0 / ((-2.0 / M_PI) * mylines[k].angle)) + 1;
@@ -25,9 +24,6 @@ void neighbors(std::vector<Line>& mylines,
       for (int x = 0; x < img.size().width; ++x)
       {
         int y = a * x + mylines[k].y + mylines[k].h;
-
-        if (y == 381)
-          std::cout << "OULA" << std::endl;
 
         if ((y >= 0) && (y < img.size().height))
           energy += (int)img.at<uchar>(y, x) / 255;
