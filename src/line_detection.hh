@@ -15,7 +15,9 @@ struct Line
   double angle;
 };
 
-std::vector<Line> get_raw_lines(cv::Mat& img, double max_rot);
+double get_raw_lines(std::vector<Line>& mylines,
+		     cv::Mat& img, double max_rot,
+		     bool is_rot);
 std::vector<Line> detect_lines(cv::Mat& img, double max_rot);
 
 void linedetection_preprocess(cv::Mat& img,

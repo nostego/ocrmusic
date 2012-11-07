@@ -9,8 +9,10 @@
 class Ocr
 {
 public:
-  Ocr(cv::Mat* img, std::vector<Symbol> vsym);
-  void findKeys(std::vector<Symbol>& choosen);
+  Ocr(cv::Mat* img, std::vector<Symbol> vsym,
+      std::vector<cv::Rect>& pistes);
+  void findKeys(std::vector<Symbol>& choosen,
+		std::vector<cv::Rect>& pistes);
 private:
   cv::Mat* img_;
   std::vector<Symbol> vsym_;

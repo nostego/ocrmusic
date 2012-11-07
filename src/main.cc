@@ -40,10 +40,10 @@ int main(int argc, char** argv)
       detect_symbols(img, lines, symbols, pistes);
       dispatch_keys(pistes, symbols, keys);
       detect_notes(img, lines, pistes, symbols, notes);
-      Ocr ocr (&img, keys);
+      Ocr ocr (&img, keys, pistes);
     }
     display(img, 700);
-    imwrite("output.png", img);
+    //imwrite("output.png", img);
   }
   return 0;
 }

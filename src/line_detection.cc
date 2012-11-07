@@ -14,20 +14,17 @@ void neighbors(std::vector<Line>& mylines,
 
   for (size_t k = 0; k < mylines.size(); ++k)
   {
-    double a = (1.0 / ((-2.0 / M_PI) * mylines[k].angle)) + 1;
     int errcount = 0;
 
     while (1)
     {
       int energy = 0.0;
 
-      for (int x = 0; x < img.size().width; ++x)
-      {
-        int y = a * x + mylines[k].y + mylines[k].h;
+      int y = mylines[k].y + mylines[k].h;
 
-        if ((y >= 0) && (y < img.size().height))
+      if ((y >= 0) && (y < img.size().height))
+        for (int x = 0; x < img.size().width; ++x)
           energy += (int)img.at<uchar>(y, x) / 255;
-      }
       if (energy >= ratio * img.size().width)
       {
         errcount = 0;
@@ -43,14 +40,11 @@ void neighbors(std::vector<Line>& mylines,
     while (1)
     {
       int energy = 0.0;
+      int y = mylines[k].y - 1;
 
-      for (int x = 0; x < img.size().width; ++x)
-      {
-        int y = a * x + mylines[k].y - 1;
-
-        if ((y >= 0) && (y < img.size().height))
+      if ((y >= 0) && (y < img.size().height))
+        for (int x = 0; x < img.size().width; ++x)
           energy += (int)img.at<uchar>(y, x) / 255;
-      }
       if ((energy >= ratio * img.size().width) && (mylines[k].y >= 1))
       {
         errcount = 0;
@@ -70,10 +64,39 @@ std::vector<Line> detect_lines(cv::Mat& img,
 {
   std::vector<Line> mylines;
   cv::Mat ret(img.size(), CV_8UC1);
+  double evalrot = 0.0;
 
   linedetection_preprocess(img, ret);
-  mylines = get_raw_lines(ret, max_rot);
+  evalrot = get_raw_lines(mylines, ret, max_rot, 0);
   filter_lines(mylines, img.size().height);
+
+  if (mylines.size() == 0)
+  {
+    cv::Mat rot_mat = cv::getRotationMatrix2D(cv::Point(ret.size().width / 2,
+                                                        ret.size().height / 2), 0.0, 1);
+
+    std::cout << "Image may be rotated" << std::endl;
+    cv::Mat rotated(ret.clone());
+    for (double angle = -5.5; angle <= -5.0; angle += 0.1)
+    {
+      rot_mat = cv::getRotationMatrix2D(cv::Point(ret.size().width / 2,
+                                                  ret.size().height / 2), angle, 1);
+      cv::warpAffine(ret, rotated, rot_mat, ret.size(), cv::INTER_CUBIC);
+      get_raw_lines(mylines, rotated, max_rot, 1);
+      filter_lines(mylines, img.size().height);
+      if (mylines.size() > 0)
+      {
+        break;
+      }
+    }
+
+    cv::Mat dst(img.clone());
+    cv::warpAffine(img, dst, rot_mat, img.size(),
+                   cv::INTER_CUBIC,
+                   BORDER_CONSTANT,
+                   cv::Scalar(255, 255, 255));
+    img = dst;
+  }
   neighbors(mylines, ret);
 
   return mylines;
@@ -160,13 +183,13 @@ void remove_lines(cv::Mat& img,
   display_lines(mask, lines, 0xff0000);
   cv::threshold(mask, mask, 150.0, 255.0, cv::THRESH_BINARY_INV);
   cv::inpaint(img, mask, img, 2, INPAINT_TELEA | INPAINT_NS);
-  //lesser thresh = more line
   cv::threshold(img, img, 80.0, 255.0, cv::THRESH_BINARY);
 }
 
-std::vector<Line> get_raw_lines(cv::Mat& img, double max_rot)
+double get_raw_lines(std::vector<Line>& mylines,
+                     cv::Mat& img, double max_rot,
+                     bool is_rot)
 {
-  std::vector<Line> mylines;
   std::vector<Vec2f> lines;
 
   HoughLines(img, lines, 1, CV_PI / 180.0, 10);
@@ -186,41 +209,43 @@ std::vector<Line> get_raw_lines(cv::Mat& img, double max_rot)
         if ((y >= 0) && (y < img.size().height))
           energy += (int)img.at<uchar>(y, x) / 255;
       }
-      if (energy >= 0.6 * img.size().width)
+      if (energy >= 0.5 * img.size().width)
       {
         Line n;
 
         n.y = lines[i][0];
         n.h = 1;
-        n.angle = lines[i][1];
+        n.angle = is_rot;
         mylines.push_back(n);
       }
     }
   }
 
-
-  return mylines;
+  return 0.0;
 }
 
 void display_lines(cv::Mat& img,
                    std::vector<Line>& mylines,
                    int rgb)
 {
+  int thick = 1;
+
+  if ((mylines.size() > 0) && (mylines[0].angle))
+    thick = 3;
   for (size_t i = 0; i < mylines.size(); ++i)
   {
     Vec4i l;
-    double a = (1.0 / ((-2.0 / M_PI) * mylines[i].angle)) + 1;
 
     for (size_t k = 0; k < mylines[i].h; ++k)
     {
       l[0] = 0;
       l[1] = mylines[i].y + k;
       l[2] = img.size().width;
-      l[3] = a * img.size().width + mylines[i].y + k;
+      l[3] = mylines[i].y + k;
       line(img, Point(l[0], l[1]),
            Point(l[2], l[3]),
            Scalar(rgb & 0x0000ff, rgb & 0x00ff00, rgb & 0xff0000),
-           1,
+           thick,
            8);
     }
   }
