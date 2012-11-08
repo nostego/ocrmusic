@@ -18,54 +18,28 @@ bool isnote(cv::Mat& img,
 	    int piste_height)
 {
   bool hasverticalline = false;
-  int current;
-  int longest;
-  int lonlongest = 0;
 
-  for (int x = 0; x < img.size().width; ++x)
+  std::vector<cv::Vec4i> lines;
+  cv::HoughLinesP(img, lines, 1, CV_PI/180, 50, 50, 10);
+  for(size_t i = 0; i < lines.size(); i++)
   {
-    current = 0;
-    longest = 0;
-
-    for (int y = 0; y < img.size().height; ++y)
-    {
-      if (255 == img.at<uchar>(y, x))
-      {
-	++current;
-      }
-      else
-      {
-        img.at<uchar>(y, x) = 0;
-	longest = std::max(longest, current);
-        lonlongest = std::max(longest, lonlongest);
-        current = 0;
-      }
-    }
-    for (int y = img.size().height - 1; y >= 0; --y)
-    {
-      if (255 == img.at<uchar>(y, x))
-      {
-	++current;
-      }
-      else
-      {
-        img.at<uchar>(y, x) = 0;
-	longest = std::max(longest, current);
-        lonlongest = std::max(longest, lonlongest);
-        current = 0;
-      }
-    }
-    if (longest >= 0.5 * piste_height)
-    {
-      hasverticalline = true;
-      break;
-    }
+    cv::Vec4i l = lines[i];
+    line(img, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]), cv::Scalar(0,0,255), 3, CV_AA);
+    display(img, 70);
+    hasverticalline = true;
   }
 
   float diff = (float) img.size().height / (float) img.size().width;
-  // FIXME: search in the MIDDLE of the note, not in the image.
-  // FIXME: search if you have a Circle note !
   bool isWhite = img.at<uchar>(img.size().height / 2, img.size().width / 2) == 0;
+
+  /*if (hasverticalline)
+  {
+    IplImage src(img);
+    IplConvKernel *kernel;
+    kernel = cvCreateStructuringElementEx(5, 5, 2, 2, CV_SHAPE_ELLIPSE);
+    cvErode(&src,&src,kernel, 2);
+    cvDilate(&src,&src,kernel, 2);
+  }*/
 
   // IsWhite and shapped like a square Or Height >> width And Verticale line.
   return ((isWhite && abs(diff) < 3) || (diff >= 2.75 || hasverticalline));
@@ -90,9 +64,20 @@ void detect_notes(cv::Mat& img,
       for (int x = 0; x < symbol_img.size().width; ++x)
 	symbol_img.at<uchar>(y, x) = ret.at<uchar>(y + symbols[k].rect.y, x + symbols[k].rect.x);
     if (isnote(symbol_img, pistes[0].height))
-      display_onerect(img, symbols[k].rect, 0x0000ff);
+    {
+      std::vector<cv::Rect> note = get_bounding_box(symbol_img);
+      for (unsigned int i = 0; i < note.size(); ++i)
+      {
+        img.at<uchar>(symbols[k].rect.y + note[i].y + note[i].height / 2, symbols[k].rect.x + note[i].x + note[i].width / 2) = 0xff0000;
+        note[i].x = symbols[k].rect.x + note[i].x;
+        note[i].y = symbols[k].rect.y + note[i].y;
+      }
+      display_rect(img, note, 0x00ffff);
+      // For debug.
+      // display(symbol_img, 70);
+     // display_onerect(img, symbols[k].rect, 0x0000ff);
+    }
     else
       display_onerect(img, symbols[k].rect, 0xff0000);
   }
-  (void)notes;
 }
