@@ -19,27 +19,59 @@ bool isnote(cv::Mat& img,
 {
   bool hasverticalline = false;
 
-  std::vector<cv::Vec4i> lines;
-  cv::HoughLinesP(img, lines, 1, CV_PI/180, 50, 50, 10);
-  for(size_t i = 0; i < lines.size(); i++)
-  {
-    cv::Vec4i l = lines[i];
-    line(img, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]), cv::Scalar(0,0,255), 3, CV_AA);
-    display(img, 70);
-    hasverticalline = true;
-  }
-
   float diff = (float) img.size().height / (float) img.size().width;
   bool isWhite = img.at<uchar>(img.size().height / 2, img.size().width / 2) == 0;
 
-  /*if (hasverticalline)
+  std::vector<cv::Vec2f> lines;
+  cv::Mat res = img;
+  cv::HoughLines(res, lines, 1, CV_PI/180, 10);
+  for(size_t i = 0; i < lines.size(); i++)
   {
-    IplImage src(img);
-    IplConvKernel *kernel;
-    kernel = cvCreateStructuringElementEx(5, 5, 2, 2, CV_SHAPE_ELLIPSE);
-    cvErode(&src,&src,kernel, 2);
-    cvDilate(&src,&src,kernel, 2);
-  }*/
+    float rho = lines[i][0];
+    float theta = lines[i][1];
+    double a = cos(theta), b = sin(theta);
+    cv::Point pt1;
+    cv::Point pt2;
+    bool first = false;
+    bool last = false;
+    for (int x = 0; x < img.size().width && !last; ++x)
+    {
+      int y = ((double) -a / (double)b) * x + (rho / b);
+      if (y >= 0 && x >= 0 &&
+          y < img.size().height && x < img.size().width && img.at<uchar>(y, x))
+      {
+        if (!first)
+        {
+          first = true;
+          pt1.x = x;
+          pt1.y = y;
+        }
+        pt2.x = x;
+        pt2.y = y;
+      }
+      else
+        last = true;
+    }
+    double dist = sqrt(pow(pt1.x - pt2.x, 2) +
+                       pow(pt1.y - pt2.y, 2));
+    double angle = abs(theta * 180 / CV_PI);
+    // FIXME: don't work for some OBVIOUS lines ??
+    if (dist >= 0.4 * piste_height && angle >= 0 && angle <= 10)
+    {
+      std::cout << dist << std::endl;
+      line(res, pt1, pt2, cv::Scalar(0, 255, 255), 3, 8);
+      img = res;
+      IplImage src(img);
+      IplConvKernel *kernel;
+      kernel = cvCreateStructuringElementEx(5, 5, 2, 2, CV_SHAPE_ELLIPSE);
+      cvErode(&src,&src,kernel, 2);
+      cvDilate(&src,&src,kernel, 3);
+      // For debug.
+      //display(img, 70);
+      hasverticalline;
+    }
+
+  }
 
   // IsWhite and shapped like a square Or Height >> width And Verticale line.
   return ((isWhite && abs(diff) < 3) || (diff >= 2.75 || hasverticalline));
@@ -73,6 +105,7 @@ void detect_notes(cv::Mat& img,
         note[i].y = symbols[k].rect.y + note[i].y;
       }
       display_rect(img, note, 0x00ffff);
+      display_rect(img, pistes, 0x0f0f0);
       // For debug.
       // display(symbol_img, 70);
      // display_onerect(img, symbols[k].rect, 0x0000ff);
