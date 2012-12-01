@@ -58,8 +58,9 @@ bool isnote(cv::Mat& img,
     // FIXME: don't work for some OBVIOUS lines ??
     if (dist >= 0.4 * piste_height && angle >= 0 && angle <= 10)
     {
-      std::cout << dist << std::endl;
-      line(res, pt1, pt2, cv::Scalar(0, 255, 255), 3, 8);
+      // FIXME: for debug.
+      //std::cout << dist << std::endl;
+      //line(res, pt1, pt2, cv::Scalar(0, 255, 255), 3, 8);
       img = res;
       IplImage src(img);
       IplConvKernel *kernel;
@@ -74,19 +75,83 @@ bool isnote(cv::Mat& img,
   }
 
   // IsWhite and shapped like a square Or Height >> width And Verticale line.
+  // FIXME: Hasverticalline doesn't work when the note is upside down.
   return ((isWhite && abs(diff) < 3) || (diff >= 2.75 || hasverticalline));
 }
 
 void analyse_note(cv::Mat& img,
                   std::vector<Line>& lines,
-                  cv::Mat& note)
+                  cv::Mat& note, int x, int y)
 {
   //display(note, 60);
-  for (unsigned int i = 0; i < lines.size(); ++i)
+  unsigned int mid = y + note.size().height / 2;
+  // FIXME: not robust if not enough lines.
+  unsigned dis;
+  int choosen_pitch = -1;
+  for (unsigned int i = 0; i < lines.size() - 1; ++i)
   {
-    for (unsigned int x = 0; x < img.size().width; ++x)
-      note.at<uchar>(x, lines[i].y) = 0;
-    //std::cout << lines[i].y << std::endl;
+    for (unsigned int x = 0; x < img.size().width * 3; ++x)
+      img.at<uchar>(lines[i].y, x) = 0;
+
+    // FIXME: improvement when note is outside of the line.
+    if (mid <= lines[i + 1].y && mid >= lines[i].y)
+    {
+      dis = lines[i + 1].y - lines[i].y;
+      if (abs(lines[i].y - y) < dis)
+        choosen_pitch = i;
+      else if (abs(lines[i + 1].y - y) < dis)
+        choosen_pitch = i;
+    }
+    // Do the math for the distance between each line to find other notes.
+    if (mid <= lines[i + 1].y && mid >= lines[i].y)
+    {
+      if (choosen_pitch != -1)
+      {
+        if (choosen_pitch == 0)
+          std::cout << "F" << std::endl;
+        else if (choosen_pitch == 1)
+          std::cout << "D" << std::endl;
+        else if (choosen_pitch == 2)
+          std::cout << "B" << std::endl;
+        else if (choosen_pitch == 3)
+          std::cout << "G" << std::endl;
+        else if (choosen_pitch == 4)
+          std::cout << "F" << std::endl;
+
+        else if (choosen_pitch == 5)
+          std::cout << "A" << std::endl;
+        else if (choosen_pitch == 6)
+          std::cout << "F" << std::endl;
+        else if (choosen_pitch == 7)
+          std::cout << "D" << std::endl;
+        else if (choosen_pitch == 8)
+          std::cout << "B" << std::endl;
+        else if (choosen_pitch == 9)
+          std::cout << "G" << std::endl;
+      }
+      else
+      {
+        if (i == 0)
+          std::cout << "E" << std::endl;
+        else if (i == 1)
+          std::cout << "C" << std::endl;
+        else if (i == 2)
+          std::cout << "A" << std::endl;
+        else if (i == 3)
+          std::cout << "F" << std::endl;
+        /*else if (i == 4)
+          std::cout << "C" << std::endl;*/
+
+        else if (i == 5)
+          std::cout << "G" << std::endl;
+        else if (i == 6)
+          std::cout << "E" << std::endl;
+        else if (i == 7)
+          std::cout << "C" << std::endl;
+        else if (i == 8)
+          std::cout << "A" << std::endl;
+      }
+    }
   }
 }
 
@@ -120,8 +185,8 @@ void detect_notes(cv::Mat& img,
         for (int y = 0; y < note.size().height; ++y)
           for (int x = 0; x < note.size().width; ++x)
             note.at<uchar>(y, x) = symbol_img.at<uchar>(y, x);
-        analyse_note(img, lines, note);
-        //display_onerect(img, notebb[i], 0x0000ff);
+        analyse_note(img, lines, note, notebb[i].x, notebb[i].y);
+        display_onerect(img, notebb[i], 0x0000ff);
       }
       //display_rect(img, notebb, 0xff00ff);
       // For debug.
