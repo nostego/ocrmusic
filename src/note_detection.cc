@@ -22,56 +22,26 @@ bool isnote(cv::Mat& img,
   float diff = (float) img.size().height / (float) img.size().width;
   bool isWhite = img.at<uchar>(img.size().height / 2, img.size().width / 2) == 0;
 
-  std::vector<cv::Vec2f> lines;
-  cv::Mat res = img;
-  cv::HoughLines(res, lines, 1, CV_PI/180, 10);
-  for(size_t i = 0; i < lines.size(); i++)
+  for (int x = 0; x < img.size().width; ++x)
   {
-    float rho = lines[i][0];
-    float theta = lines[i][1];
-    double a = cos(theta), b = sin(theta);
-    cv::Point pt1;
-    cv::Point pt2;
-    bool first = false;
-    bool last = false;
-    for (int x = 0; x < img.size().width && !last; ++x)
+    unsigned int vertpix = 0;
+    for (int y = 0; y < img.size().height; ++y)
     {
-      int y = ((double) -a / (double)b) * x + (rho / b);
-      if (y >= 0 && x >= 0 &&
-          y < img.size().height && x < img.size().width && img.at<uchar>(y, x))
-      {
-        if (!first)
-        {
-          first = true;
-          pt1.x = x;
-          pt1.y = y;
-        }
-        pt2.x = x;
-        pt2.y = y;
-      }
-      else
-        last = true;
+      if (img.at<uchar>(y, x) != 0)
+        ++vertpix;
     }
-    double dist = sqrt(pow(pt1.x - pt2.x, 2) +
-                       pow(pt1.y - pt2.y, 2));
-    double angle = abs(theta * 180 / CV_PI);
-    // FIXME: don't work for some OBVIOUS lines ??
-    if (dist >= 0.4 * piste_height && angle >= 0 && angle <= 10)
+    if (vertpix >= 0.4 * piste_height)
     {
-      // FIXME: for debug.
-      //std::cout << dist << std::endl;
-      //line(res, pt1, pt2, cv::Scalar(0, 255, 255), 3, 8);
-      img = res;
+      hasverticalline = true;
+      for (int y = 0; y < img.size().height; ++y)
+        img.at<uchar>(y, x) = 0;
       IplImage src(img);
       IplConvKernel *kernel;
       kernel = cvCreateStructuringElementEx(5, 5, 2, 2, CV_SHAPE_ELLIPSE);
-      cvErode(&src,&src,kernel, 2);
-      cvDilate(&src,&src,kernel, 3);
-      // For debug.
+      cvErode(&src,&src,kernel, 1);
+      cvDilate(&src,&src,kernel, 1);
       //display(img, 70);
-      hasverticalline = true;
     }
-
   }
 
   // IsWhite and shapped like a square Or Height >> width And Verticale line.
@@ -102,7 +72,7 @@ void analyse_note(cv::Mat& img,
       else if (abs(lines[i + 1].y - y) < dis)
         choosen_pitch = i % 10;
     }
-    // Do the math for the distance between each line to find other notes.
+
     if (mid <= lines[i + 1].y && mid >= lines[i].y)
     {
       if (choosen_pitch != -1)
