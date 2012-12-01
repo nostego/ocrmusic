@@ -98,9 +98,9 @@ void analyse_note(cv::Mat& img,
     {
       dis = lines[i + 1].y - lines[i].y;
       if (abs(lines[i].y - y) < dis)
-        choosen_pitch = i;
+        choosen_pitch = i % 10;
       else if (abs(lines[i + 1].y - y) < dis)
-        choosen_pitch = i;
+        choosen_pitch = i % 10;
     }
     // Do the math for the distance between each line to find other notes.
     if (mid <= lines[i + 1].y && mid >= lines[i].y)
