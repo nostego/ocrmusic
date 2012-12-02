@@ -46,7 +46,7 @@ bool isnote(cv::Mat& img,
 
   // IsWhite and shapped like a square Or Height >> width And Verticale line.
   // FIXME: Hasverticalline doesn't work when the note is upside down.
-  return (/*(isWhite && abs(diff) < 3) || (diff >= 2.75 ||*/( hasverticalline));
+  return ((isWhite && abs(diff) < 3) || (diff >= 2.75 || hasverticalline));
 }
 
 void analyse_note(cv::Mat& img,
@@ -134,7 +134,7 @@ void analyse_note(cv::Mat& img,
         notestr = "A";
     }
   }
-  cv::putText(img, notestr, cvPoint(x, y - 20), cv::FONT_HERSHEY_SIMPLEX, 0.4, 255);
+  cv::putText(img, notestr, cvPoint(x, y - 20), cv::FONT_HERSHEY_SIMPLEX, 0.8, 255);
 }
 
 void detect_notes(cv::Mat& img,
