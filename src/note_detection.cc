@@ -51,8 +51,16 @@ bool isnote(cv::Mat& img,
 
 void analyse_note(cv::Mat& img,
                   std::vector<Line>& lines,
-                  cv::Mat& note, int x, int y)
+                  cv::Mat& note, int x, int y,
+                  std::vector<Note>& vnotes)
 {
+  Note n;
+  n.duration = DURATION_NOIRE;
+  n.octave = 1;
+  n.x = x;
+  n.y = y;
+  n.alter = NONE;
+
   CvFont font;
   double hScale = 1.0;
   double vScale = 1.0;
@@ -123,6 +131,22 @@ void analyse_note(cv::Mat& img,
       }
     }
   }
+  if (notestr == "A")
+    n.note = PITCH_A;
+  else if (notestr == "B")
+    n.note = PITCH_B;
+  else if (notestr == "C")
+    n.note = PITCH_C;
+  else if (notestr == "D")
+    n.note = PITCH_D;
+  else if (notestr == "E")
+    n.note = PITCH_E;
+  else if (notestr == "F")
+    n.note = PITCH_F;
+  else if (notestr == "G")
+    n.note = PITCH_G;
+
+  vnotes.push_back(n);
   cv::putText(img, notestr, cvPoint(x, y - 20), cv::FONT_HERSHEY_SIMPLEX, 1, 255);
 }
 
@@ -156,7 +180,7 @@ void detect_notes(cv::Mat& img,
         for (int y = 0; y < note.size().height; ++y)
           for (int x = 0; x < note.size().width; ++x)
             note.at<uchar>(y, x) = symbol_img.at<uchar>(y, x);
-        analyse_note(img, lines, note, notebb[i].x, notebb[i].y);
+        analyse_note(img, lines, note, notebb[i].x, notebb[i].y, notes);
         display_onerect(img, notebb[i], 0x0000ff);
       }
       //display_rect(img, notebb, 0xff00ff);
