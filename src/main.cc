@@ -43,7 +43,7 @@ int main(int argc, char** argv)
       detect_notes(img, lines, pistes, symbols, notes);
       Ocr ocr (&img, keys, pistes);
     }
-    musicxml("test.xml", notes);
+    musicxml("test.xml", notes, pistes);
     display(img, 700);
     imwrite("output.png", img);
   }

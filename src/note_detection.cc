@@ -54,20 +54,32 @@ void analyse_note(cv::Mat& img,
                   cv::Mat& note, int x, int y,
                   std::vector<Note>& vnotes)
 {
+  double piste_height = fabs(lines[4].y - lines[0].y);
   Note n;
   n.duration = DURATION_NOIRE;
   n.octave = 1;
   n.x = x;
   n.y = y;
   n.alter = NONE;
-
+  double ypiste = 0;
+  unsigned int mid = y + note.size().height / 2;
+  
+  for (size_t k = 4; k < lines.size(); k += 5)
+  {
+    if (mid < lines[k].y)
+    {
+      ypiste = lines[k].y;
+      break;
+    }
+  }
+  n.octave = (int)((ypiste - mid) / piste_height);
   CvFont font;
   double hScale = 1.0;
   double vScale = 1.0;
   int lineWidth = 1;
   cvInitFont(&font, CV_FONT_HERSHEY_SIMPLEX | CV_FONT_ITALIC, hScale, vScale, 0, lineWidth);
+  
 
-  unsigned int mid = y + note.size().height / 2;
   // FIXME: not robust if not enough lines.
   int choosen_pitch = -1;
   std::string notestr = "";

@@ -1,8 +1,21 @@
 #include "musicxml.hh"
+#include "tools.hh"
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+
+bool by_x(Note a,
+          Note b)
+{
+  return a.x < b.x;
+}
+
+bool by_y(cv::Rect a,
+          cv::Rect b)
+{
+  return a.y < b.y;
+}
 
 static char get_step(Pitch note)
 {
@@ -10,7 +23,8 @@ static char get_step(Pitch note)
 }
 
 void musicxml(std::string filename,
-              std::vector<Note>& notes)
+              std::vector<Note>& notes,
+              std::vector<cv::Rect>& pistes)
 {
   std::ofstream of;
 
@@ -38,43 +52,51 @@ void musicxml(std::string filename,
        << "<line>2</line>" << std::endl
        << "</clef>" << std::endl
        << "</attributes>" << std::endl;
-    for (size_t k = 0; k < notes.size(); ++k)
-    {
-      if (true) // if note appartient a la piste
+
+    mysort(notes, by_x);
+    mysort(pistes, by_y);
+
+    for (int current_piste = 0;
+	 current_piste < pistes.size();
+	 ++ current_piste)
+      for (size_t k = 0; k < notes.size(); ++k)
       {
-        t += notes[k].duration;
-        of << "<note>" << std::endl
-           << "<pitch>" << std::endl
-           << "<step>" << get_step(notes[k].note) << "</step>" << std::endl
-           << "<octave>"<< notes[k].octave << "</octave>" << std::endl
-           << "</pitch>" << std::endl
-           << "<duration>"<< 1 + (int)log2(notes[k].duration) <<"</duration>" << std::endl
-           << "<type>";
-        switch (notes[k].duration)
+        if ((notes[k].y >= pistes[current_piste].y) &&
+	    (notes[k].y <= pistes[current_piste].y + pistes[current_piste].height))
         {
-        case DURATION_CROCHE:
-          of << "eighth";
-          break;
-        case DURATION_NOIRE:
-          of << "quarter";
-          break;
-        case DURATION_BLANCHE:
-          of << "half";
-          break;
-        case DURATION_RONDE:
-          of << "whole";
-          break;
-        }
-        of << "</type>" << std::endl
-           << "</note>" << std::endl;
-        if (t >= 8)
-        {
-          of << "</measure>" << std::endl;
-          of << "<measure number=\"" << measure++ << "\">" << std::endl;
-          t = 0;
+          t += notes[k].duration;
+          of << "<note>" << std::endl
+             << "<pitch>" << std::endl
+             << "<step>" << get_step(notes[k].note) << "</step>" << std::endl
+             << "<octave>"<< 4+notes[k].octave << "</octave>" << std::endl
+             << "</pitch>" << std::endl
+             << "<duration>"<< 1 + (int)log2(notes[k].duration) <<"</duration>" << std::endl
+             << "<type>";
+          switch (notes[k].duration)
+          {
+          case DURATION_CROCHE:
+            of << "eighth";
+            break;
+          case DURATION_NOIRE:
+            of << "quarter";
+            break;
+          case DURATION_BLANCHE:
+            of << "half";
+            break;
+          case DURATION_RONDE:
+            of << "whole";
+            break;
+          }
+          of << "</type>" << std::endl
+             << "</note>" << std::endl;
+          if (t >= 8)
+          {
+            of << "</measure>" << std::endl;
+            of << "<measure number=\"" << measure++ << "\">" << std::endl;
+            t = 0;
+          }
         }
       }
-    }
     of << "</measure>" << std::endl;
     of << "</part></score-partwise>" << std::endl;;
     of.close();
