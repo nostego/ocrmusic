@@ -23,7 +23,7 @@ void musicxml(std::string filename,
     n.octave = 4;
     n.note = PITCH_A;
     n.alter = ALTER_BECAR;
-    n.duration = DURATION_RONDE;
+    n.duration = DURATION_NOIRE;
 
     notes.push_back(n);
   }
@@ -59,7 +59,7 @@ void musicxml(std::string filename,
            << "<step>" << get_step(notes[k].note) << "</step>" << std::endl
            << "<octave>"<< notes[k].octave << "</octave>" << std::endl
            << "</pitch>" << std::endl
-           << "<duration>"<< (int)log2(notes[k].duration) <<"</duration>" << std::endl
+           << "<duration>"<< 1 + (int)log2(notes[k].duration) <<"</duration>" << std::endl
            << "<type>";
         switch (notes[k].duration)
         {
