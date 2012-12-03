@@ -9,6 +9,7 @@
 #include "note_detection.hh"
 #include "tools.hh"
 #include "ocr.hh"
+#include "musicxml.hh"
 
 using namespace cv;
 
@@ -42,8 +43,9 @@ int main(int argc, char** argv)
       detect_notes(img, lines, pistes, symbols, notes);
       Ocr ocr (&img, keys, pistes);
     }
+    musicxml("test.xml", notes);
     display(img, 700);
-    //imwrite("output.png", img);
+    imwrite("output.png", img);
   }
   return 0;
 }

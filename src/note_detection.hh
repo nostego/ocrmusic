@@ -14,11 +14,27 @@ enum Pitch
   PITCH_G
 };
 
+enum Alter
+{
+  ALTER_BECAR,
+  ALTER_BEMOL,
+  ALTER_DIESE
+};
+
+enum Duration
+{
+  DURATION_CROCHE,
+  DURATION_NOIRE,
+  DURATION_BLANCHE,
+  DURATION_RONDE
+};
+
 struct Note : public Symbol
 {
+  Duration duration;
   int octave; // from 0 (grave) to X (aigue)
   Pitch note; // A,B,C,D,E,F,G
-  int alter; //bemol, becar, diese
+  Alter alter; //bemol, becar, diese
 };
 
 void detect_notes(cv::Mat& img,
