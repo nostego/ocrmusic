@@ -23,10 +23,10 @@ enum Alter
 
 enum Duration
 {
-  DURATION_CROCHE,
-  DURATION_NOIRE,
-  DURATION_BLANCHE,
-  DURATION_RONDE
+  DURATION_CROCHE = 1,
+  DURATION_NOIRE = 2,
+  DURATION_BLANCHE = 4,
+  DURATION_RONDE = 8
 };
 
 struct Note : public Symbol
