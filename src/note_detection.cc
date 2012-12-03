@@ -59,82 +59,71 @@ void analyse_note(cv::Mat& img,
   int lineWidth = 1;
   cvInitFont(&font, CV_FONT_HERSHEY_SIMPLEX | CV_FONT_ITALIC, hScale, vScale, 0, lineWidth);
 
-  //std::string note;
-  //display(note, 60);
   unsigned int mid = y + note.size().height / 2;
   // FIXME: not robust if not enough lines.
-  unsigned dis;
   int choosen_pitch = -1;
   std::string notestr = "";
   for (unsigned int i = 0; i < lines.size() - 1; ++i)
   {
-    /*for (unsigned int x2 = 0; x2 < img.size().width * 3; ++x2)
-      img.at<uchar>(lines[i].y, x) = 0;*/
-
-    // FIXME: improvement when note is outside of the line.
     if (mid <= lines[i + 1].y && mid >= lines[i].y)
     {
-      dis = lines[i + 1].y - lines[i].y;
-      std::cout << dis << " i: " << abs(lines[i].y - mid) << std::endl;
-      std::cout << dis << " i + 1: " << abs(lines[i + 1].y - mid) << std::endl;
-      if (abs(lines[i].y - mid) < dis / 2)
-      {
-        std::cout << "CHOOSE i !\n";
+      unsigned int stepdis = abs(lines[i].y - lines[i + 1].y);
+      // FIXME: improvement when note is outside of the line.
+      unsigned int middis = abs(lines[i].y + (stepdis / 2) - mid);
+      unsigned int topdis = abs(lines[i].y - mid);
+      unsigned int botdis = abs(lines[i + 1].y - mid);
+      unsigned int dismin = std::min(std::min(middis, topdis), botdis);
+      if (dismin == topdis)
         choosen_pitch = i % 10;
-      }
-      else if (abs(lines[i + 1].y - mid) < dis / 2)
-      {
-        std::cout << "CHOOSE i + 1 !\n";
+      else if (dismin == botdis)
         choosen_pitch = (i + 1) % 10;
+      if (choosen_pitch != -1)
+      {
+        if (choosen_pitch == 0)
+          notestr = "F";
+        else if (choosen_pitch == 1)
+          notestr = "D";
+        else if (choosen_pitch == 2)
+          notestr = "B";
+        else if (choosen_pitch == 3)
+          notestr = "G";
+        else if (choosen_pitch == 4)
+          notestr = "E";
+
+        else if (choosen_pitch == 5)
+          notestr = "A";
+        else if (choosen_pitch == 6)
+          notestr = "F";
+        else if (choosen_pitch == 7)
+          notestr = "D";
+        else if (choosen_pitch == 8)
+          notestr = "B";
+        else if (choosen_pitch == 9)
+          notestr = "G";
       }
-    }
+      else
+      {
+        if (i % 10 == 0)
+          notestr = "E";
+        else if (i % 10 == 1)
+          notestr = "C";
+        else if (i % 10== 2)
+          notestr = "A";
+        else if (i % 10== 3)
+          notestr = "F";
 
-    if (choosen_pitch != -1)
-    {
-      if (choosen_pitch == 0)
-        notestr = "F";
-      else if (choosen_pitch == 1)
-        notestr = "D";
-      else if (choosen_pitch == 2)
-        notestr = "B";
-      else if (choosen_pitch == 3)
-        notestr = "G";
-      else if (choosen_pitch == 4)
-        notestr = "E";
-
-      else if (choosen_pitch == 5)
-        notestr = "A";
-      else if (choosen_pitch == 6)
-        notestr = "F";
-      else if (choosen_pitch == 7)
-        notestr = "D";
-      else if (choosen_pitch == 8)
-        notestr = "B";
-      else if (choosen_pitch == 9)
-        notestr = "G";
-    }
-    else
-    {
-      if (i == 0)
-        notestr = "E";
-      else if (i == 1)
-        notestr = "C";
-      else if (i == 2)
-        notestr = "A";
-      else if (i == 3)
-        notestr = "F";
-
-      else if (i == 5)
-        notestr = "G";
-      else if (i == 6)
-        notestr = "E";
-      else if (i == 7)
-        notestr = "C";
-      else if (i == 8)
-        notestr = "A";
+        else if (i % 10 == 5)
+          notestr = "G";
+        else if (i % 10 == 6)
+          notestr = "E";
+        else if (i % 10 == 7)
+          notestr = "C";
+        else if (i % 10 == 8)
+          notestr = "A";
+      }
     }
   }
-  cv::putText(img, notestr, cvPoint(x, y - 20), cv::FONT_HERSHEY_SIMPLEX, 0.8, 255);
+  cv::putText(img, notestr, cvPoint(x, y - 20), cv::FONT_HERSHEY_SIMPLEX, 1, 255);
 }
 
 void detect_notes(cv::Mat& img,
