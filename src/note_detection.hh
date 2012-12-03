@@ -29,12 +29,14 @@ enum Duration
   DURATION_RONDE = 8
 };
 
-struct Note : public Symbol
+struct Note
 {
-  Duration duration;
+  Duration duration; // croche, noire, ...
   int octave; // from 0 (grave) to X (aigue)
   Pitch note; // A,B,C,D,E,F,G
   Alter alter; //bemol, becar, diese
+  int position; // id de la note, plusieurs notes avec le same id
+  //=> accord
 };
 
 void detect_notes(cv::Mat& img,
