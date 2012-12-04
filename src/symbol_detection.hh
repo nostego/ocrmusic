@@ -11,10 +11,15 @@ struct Symbol
   cv::Rect rect;
 };
 
-void remove_pistes(cv::Mat& img,
-                   std::vector<cv::Rect>& pistes_rect);
+struct Piste : public cv::Rect
+{
+  int key;
+};
 
-void dispatch_keys(std::vector<cv::Rect>& pistes,
+void remove_pistes(cv::Mat& img,
+                   std::vector<Piste>& pistes_rect);
+
+void dispatch_keys(std::vector<Piste>& pistes,
 		   std::vector<Symbol>& symbols,
 		   std::vector<Symbol>& keys);
 void symboldetection_preprocess(cv::Mat& img,
@@ -23,5 +28,5 @@ void symboldetection_preprocess(cv::Mat& img,
 void detect_symbols(cv::Mat& img,
 		    std::vector<Line>& lines,
 		    std::vector<Symbol>& symbols,
-		    std::vector<cv::Rect>& pistes_rect);
+		    std::vector<Piste>& pistes_rect);
 #endif // !SYMBOL_DETECTION_HH_

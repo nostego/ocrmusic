@@ -11,18 +11,18 @@ void symboldetection_preprocess(cv::Mat& img,
   (void)lines;
 }
 
-std::vector<cv::Rect> get_piste_rect(std::vector<Line>& lines,
+std::vector<Piste> get_piste_rect(std::vector<Line>& lines,
                                      cv::Mat& img)
 {
   int tmp[img.size().width];
   int drange = img.size().width * 0.1;
-  std::vector<cv::Rect> rect;
+  std::vector<Piste> rect;
   double piste_height = fabs(lines[4].y - lines[0].y);
   double interlap = piste_height / 4.0;
 
   for (size_t k = 0; k < lines.size(); k += 5)
   {
-    cv::Rect r;
+    Piste r;
 
     r.x = img.size().width;
 
@@ -48,6 +48,7 @@ std::vector<cv::Rect> get_piste_rect(std::vector<Line>& lines,
     r.width = img.size().width;
     r.y = lines[k].y - interlap;
     r.height = piste_height + interlap * 2;
+    r.key = 0;
     rect.push_back(r);
   }
 
@@ -58,7 +59,7 @@ std::vector<cv::Rect> get_piste_rect(std::vector<Line>& lines,
 
 void filter_bbox(std::vector<cv::Rect>& boundRect,
                  std::vector<Line>& lines,
-                 std::vector<cv::Rect>& pistes_rect)
+                 std::vector<Piste>& pistes_rect)
 {
   bool del[boundRect.size()];
   int epsilon = pistes_rect[0].width * 0.005;
@@ -133,7 +134,7 @@ void filter_bbox(std::vector<cv::Rect>& boundRect,
   filter(boundRect, del);
 }
 
-void dispatch_keys(std::vector<cv::Rect>& pistes,
+void dispatch_keys(std::vector<Piste>& pistes,
                    std::vector<Symbol>& symbols,
                    std::vector<Symbol>& keys)
 {
@@ -157,7 +158,7 @@ void dispatch_keys(std::vector<cv::Rect>& pistes,
 }
 
 void remove_pistes(cv::Mat& img,
-                   std::vector<cv::Rect>& pistes_rect)
+                   std::vector<Piste>& pistes_rect)
 {
   int decidor = 0;
   int min = 0;
@@ -198,7 +199,7 @@ void remove_pistes(cv::Mat& img,
 
 std::vector<cv::Rect> get_symbols_rect(cv::Mat& ret,
                                        std::vector<Line>& lines,
-                                       std::vector<cv::Rect>& pistes_rect)
+                                       std::vector<Piste>& pistes_rect)
 {
   std::vector<cv::Rect> symbols_rect;
 
@@ -216,7 +217,7 @@ bool by_x(Symbol a,
 }
 
 void filter_symbols(std::vector<Symbol>& symbols,
-                    std::vector<cv::Rect>& pistes_rect)
+                    std::vector<Piste>& pistes_rect)
 {
   std::vector<Symbol> sym_in_piste;
   double piste_height = pistes_rect[0].height;
@@ -257,7 +258,7 @@ void filter_symbols(std::vector<Symbol>& symbols,
 void detect_symbols(cv::Mat& img,
                     std::vector<Line>& lines,
                     std::vector<Symbol>& symbols,
-                    std::vector<cv::Rect>& pistes_rect)
+                    std::vector<Piste>& pistes_rect)
 {
   cv::Mat ret(img.size(), CV_8UC1);
   std::vector<cv::Rect> symbols_rect;

@@ -1,7 +1,7 @@
 #include "ocr.hh"
 
 Ocr::Ocr(cv::Mat* img, std::vector<Symbol> vsym,
-	 std::vector<cv::Rect>& pistes)
+	 std::vector<Piste>& pistes)
   : img_(img),
     vsym_(vsym)
 {
@@ -9,16 +9,21 @@ Ocr::Ocr(cv::Mat* img, std::vector<Symbol> vsym,
 }
 
 void Ocr::findKeys(std::vector<Symbol>& choosen,
-		   std::vector<cv::Rect>& pistes)
+		   std::vector<Piste>& pistes)
 {
   int diff = 20;
   for (size_t i = 0; i < choosen.size(); ++i)
   {
-    //if (abs(choosen[i].rect.width - choosen[i].rect.height) > diff)
     if (choosen[i].rect.height > pistes[choosen[i].piste].height)
+    {
+      pistes[choosen[i].piste].key = 0;
       display_onerect(*img_, choosen[i].rect, 0x00ff00);
+    }
     else
+    {
+      pistes[choosen[i].piste].key = 1;
       display_onerect(*img_, choosen[i].rect, 0x00ffff);
+    }
   }
 }
 

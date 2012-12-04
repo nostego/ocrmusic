@@ -4,11 +4,12 @@
 # include <string>
 # include <vector>
 # include "note_detection.hh"
+# include "symbol_detection.hh"
 # include <opencv/cv.h>
 # include <opencv/highgui.h>
 
 void musicxml(std::string filename,
 	      std::vector<Note>& notes,
-	      std::vector<cv::Rect>& pistes);
+	      std::vector<Piste>& pistes);
 
 #endif // !MUSICXML_HH_

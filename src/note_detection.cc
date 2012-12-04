@@ -5,7 +5,7 @@
 void notedetection_preprocess(cv::Mat& img,
                               cv::Mat& ret,
                               std::vector<Line>& lines,
-                              std::vector<cv::Rect>& pistes)
+                              std::vector<Piste>& pistes)
 {
   cv::cvtColor(img, ret, CV_RGB2GRAY);
   cv::threshold(ret, ret, 195.0, 255.0, cv::THRESH_BINARY_INV);
@@ -158,13 +158,14 @@ void analyse_note(cv::Mat& img,
   else if (notestr == "G")
     n.note = PITCH_G;
 
-  vnotes.push_back(n);
+  if (notestr != "")
+    vnotes.push_back(n);
   cv::putText(img, notestr, cvPoint(x, y - 20), cv::FONT_HERSHEY_SIMPLEX, 1, 255);
 }
 
 void detect_notes(cv::Mat& img,
                   std::vector<Line>& lines,
-                  std::vector<cv::Rect>& pistes,
+                  std::vector<Piste>& pistes,
                   std::vector<Symbol>& symbols,
                   std::vector<Note>& notes)
 {
