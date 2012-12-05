@@ -36,15 +36,36 @@ int main(int argc, char** argv)
       max_rot = 0.001;
 
     lines = detect_lines(img, max_rot);
+
     if (lines.size() > 4)
     {
       detect_symbols(img, lines, symbols, pistes);
       dispatch_keys(pistes, symbols, keys);
+
+      // FIXME: move it in the right place, add an invisible line.
+      // FIXME: quick and dirty.
+      double dis = abs(lines[0].y - lines[1].y);
+      int cpt = 5;
+      bool new_step = false;
+      for (int i = 5; i < lines.size(); i += cpt)
+      {
+        Line l;
+        l.y = lines[i - 1].y + dis;
+        l.h = lines[i - 1].h;
+        l.angle = lines[i - 1].angle;
+        lines.insert(lines.begin() + i, l);
+        if (!new_step)
+        {
+          ++cpt;
+          new_step = true;
+        }
+      }
+
       detect_notes(img, lines, pistes, symbols, notes);
       Ocr ocr (&img, keys, pistes);
     }
     musicxml("test.xml", notes, pistes);
-    display(img, 700);
+    display(img, 1600);
     imwrite("output.png", img);
   }
   return 0;

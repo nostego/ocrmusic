@@ -63,7 +63,7 @@ void analyse_note(cv::Mat& img,
   n.alter = NONE;
   double ypiste = 0;
   unsigned int mid = y + note.size().height / 2;
-  
+
   for (size_t k = 4; k < lines.size(); k += 5)
   {
     if (mid < lines[k].y)
@@ -78,7 +78,6 @@ void analyse_note(cv::Mat& img,
   double vScale = 1.0;
   int lineWidth = 1;
   cvInitFont(&font, CV_FONT_HERSHEY_SIMPLEX | CV_FONT_ITALIC, hScale, vScale, 0, lineWidth);
-  
 
   // FIXME: not robust if not enough lines.
   int choosen_pitch = -1;
@@ -94,9 +93,9 @@ void analyse_note(cv::Mat& img,
       unsigned int botdis = abs(lines[i + 1].y - mid);
       unsigned int dismin = std::min(std::min(middis, topdis), botdis);
       if (dismin == topdis)
-        choosen_pitch = i % 10;
+        choosen_pitch = i % 12;
       else if (dismin == botdis)
-        choosen_pitch = (i + 1) % 10;
+        choosen_pitch = (i + 1) % 12;
       if (choosen_pitch != -1)
       {
         if (choosen_pitch == 0)
@@ -109,37 +108,47 @@ void analyse_note(cv::Mat& img,
           notestr = "G";
         else if (choosen_pitch == 4)
           notestr = "E";
-
         else if (choosen_pitch == 5)
-          notestr = "A";
+          notestr = "C";
+
         else if (choosen_pitch == 6)
-          notestr = "F";
+          notestr = "A";
         else if (choosen_pitch == 7)
-          notestr = "D";
+          notestr = "F";
         else if (choosen_pitch == 8)
-          notestr = "B";
+          notestr = "D";
         else if (choosen_pitch == 9)
+          notestr = "B";
+        else if (choosen_pitch == 10)
           notestr = "G";
+        else if (choosen_pitch == 11)
+          notestr = "E";
+        break;
       }
       else
       {
-        if (i % 10 == 0)
+        if (i % 12 == 0)
           notestr = "E";
-        else if (i % 10 == 1)
+        else if (i % 12 == 1)
           notestr = "C";
-        else if (i % 10== 2)
+        else if (i % 12 == 2)
           notestr = "A";
-        else if (i % 10== 3)
+        else if (i % 12 == 3)
           notestr = "F";
+        else if (i % 12 == 4)
+          notestr = "D";
 
-        else if (i % 10 == 5)
+        else if (i % 12 == 6)
           notestr = "G";
-        else if (i % 10 == 6)
+        else if (i % 12 == 7)
           notestr = "E";
-        else if (i % 10 == 7)
+        else if (i % 12 == 8)
           notestr = "C";
-        else if (i % 10 == 8)
+        else if (i % 12 == 9)
           notestr = "A";
+        else if (i % 12 == 10)
+          notestr = "F";
+        break;
       }
     }
   }
@@ -159,8 +168,10 @@ void analyse_note(cv::Mat& img,
     n.note = PITCH_G;
 
   if (notestr != "")
+  {
     vnotes.push_back(n);
-  cv::putText(img, notestr, cvPoint(x, y - 20), cv::FONT_HERSHEY_SIMPLEX, 1, 255);
+    cv::putText(img, notestr, cvPoint(x, y - 20), cv::FONT_HERSHEY_SIMPLEX, 1, 255);
+  }
 }
 
 void detect_notes(cv::Mat& img,
