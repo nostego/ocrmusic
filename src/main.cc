@@ -65,7 +65,7 @@ int main(int argc, char** argv)
       Ocr ocr (&img, keys, pistes);
     }
     musicxml("test.xml", notes, pistes);
-    display(img, 1600);
+    display(img, 1200);
     imwrite("output.png", img);
   }
   return 0;

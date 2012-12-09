@@ -18,6 +18,9 @@ bool isnote(cv::Mat& img,
 	    int piste_height)
 {
   bool hasverticalline = false;
+  bool is_sharp = false;
+
+  int first_line_x = -1;
 
   float diff = (float) img.size().height / (float) img.size().width;
   bool isWhite = img.at<uchar>(img.size().height / 2, img.size().width / 2) == 0;
@@ -32,21 +35,28 @@ bool isnote(cv::Mat& img,
     }
     if (vertpix >= 0.4 * piste_height)
     {
+      if (first_line_x == -1)
+        first_line_x = x;
+      else
+        is_sharp = abs(x - first_line_x) > (img.size().width / 2);
+
+      //display(img, 70);
       hasverticalline = true;
       for (int y = 0; y < img.size().height; ++y)
         img.at<uchar>(y, x) = 0;
-      IplImage src(img);
+
+      // FIXME: adapt it according to the height of note.
+      /*IplImage src(img);
       IplConvKernel *kernel;
       kernel = cvCreateStructuringElementEx(5, 5, 2, 2, CV_SHAPE_ELLIPSE);
       cvErode(&src,&src,kernel, 1);
-      cvDilate(&src,&src,kernel, 1);
-      //display(img, 70);
+      cvDilate(&src,&src,kernel, 1);*/
     }
   }
 
   // IsWhite and shapped like a square Or Height >> width And Verticale line.
   // FIXME: Hasverticalline doesn't work when the note is upside down.
-  return ((isWhite && abs(diff) < 3) || (diff >= 2.75 || hasverticalline));
+  return (((isWhite && abs(diff) < 3) || (diff >= 2.75 || hasverticalline)) && !is_sharp);
 }
 
 void analyse_note(cv::Mat& img,
