@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     std::vector<Line> lines;
     std::vector<Symbol> symbols;
     std::vector<Symbol> keys;
-    std::vector<cv::Rect> pistes;
+    std::vector<Piste> pistes;
     std::vector<Note> notes;
 
     if ((argc >= 3) && (strcmp(argv[2], "--straight") == 0))

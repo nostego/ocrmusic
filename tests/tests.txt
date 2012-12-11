@@ -14,3 +14,4 @@ rot_normal.png 60 -1
 fat_alex.png -1 -1
 huge_alex.png -1 -1
 impossibru.jpg -1 -1
+huge_victor-1.png -1 -1
