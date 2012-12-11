@@ -54,8 +54,7 @@ bool isnote(cv::Mat& img,
     }
   }
 
-  // IsWhite and shapped like a square Or Height >> width And Verticale line.
-  // FIXME: Hasverticalline doesn't work when the note is upside down.
+  // FIXME: adapt it according to the height of note.
   return (((isWhite && abs(diff) < 3) || (diff >= 2.75 || hasverticalline)) && !is_sharp);
 }
 
@@ -180,7 +179,8 @@ void analyse_note(cv::Mat& img,
   if (notestr != "")
   {
     vnotes.push_back(n);
-    cv::putText(img, notestr, cvPoint(x, y - 20), cv::FONT_HERSHEY_SIMPLEX, 1, 255);
+    cv::putText(img, notestr, cvPoint(x, y - 20),
+                cv::FONT_HERSHEY_SIMPLEX, 1, 255);
   }
 }
 
@@ -200,13 +200,28 @@ void detect_notes(cv::Mat& img,
 				symbols[k].rect.height),
 		       CV_8UC1);
     for (int y = 0; y < symbol_img.size().height; ++y)
+    {
       for (int x = 0; x < symbol_img.size().width; ++x)
-	symbol_img.at<uchar>(y, x) = ret.at<uchar>(y + symbols[k].rect.y, x + symbols[k].rect.x);
+	symbol_img.at<uchar>(y, x) =
+          ret.at<uchar>(y + symbols[k].rect.y, x + symbols[k].rect.x);
+    }
     if (isnote(symbol_img, pistes[0].height))
     {
       std::vector<cv::Rect> notebb = get_bounding_box(symbol_img);
+      // Detect the biggest bounding box and remove the smallest ones.
+      double biggest_area = 0;
       for (unsigned int i = 0; i < notebb.size(); ++i)
       {
+        double area = notebb[i].width * notebb[i].height;
+        if (biggest_area < area && abs(notebb[i].height / notebb[i].width) < 2)
+          biggest_area = area;
+      }
+      for (unsigned int i = 0; i < notebb.size(); ++i)
+      {
+        double area = notebb[i].width * notebb[i].height;
+        if (abs(biggest_area / area) > 2)
+          continue;
+
         notebb[i].x = symbols[k].rect.x + notebb[i].x;
         notebb[i].y = symbols[k].rect.y + notebb[i].y;
         cv::Mat note(cv::Size(notebb[i].width,
@@ -217,10 +232,6 @@ void detect_notes(cv::Mat& img,
         analyse_note(img, lines, note, notebb[i].x, notebb[i].y, notes);
         display_onerect(img, notebb[i], 0x0000ff);
       }
-      //display_rect(img, notebb, 0xff00ff);
-      // For debug.
-      // display(symbol_img, 70);
-     // display_onerect(img, symbols[k].rect, 0x0000ff);
     }
     else
       display_onerect(img, symbols[k].rect, 0xff0000);
