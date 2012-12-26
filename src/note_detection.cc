@@ -192,6 +192,7 @@ void detect_notes(cv::Mat& img,
                   std::vector<Note>& notes)
 {
   cv::Mat ret(img.size(), CV_8UC1);
+  double step_size = lines[1].y - lines[0].y;
 
   notedetection_preprocess(img, ret, lines, pistes);
 
@@ -214,14 +215,16 @@ void detect_notes(cv::Mat& img,
       for (unsigned int i = 0; i < notebb.size(); ++i)
       {
         double area = notebb[i].width * notebb[i].height;
-        if (biggest_area < area && abs(notebb[i].height / notebb[i].width) < 2)
+        if (biggest_area < area && abs(notebb[i].height / notebb[i].width) < 2 && notebb[i].height <= step_size)
           biggest_area = area;
       }
       for (unsigned int i = 0; i < notebb.size(); ++i)
       {
         double area = notebb[i].width * notebb[i].height;
-        if (abs(biggest_area / area) > 2)
+        if (area < 5 || notebb[i].height >= step_size * 1.5)
+        {
           continue;
+        }
 
         notebb[i].x = symbols[k].rect.x + notebb[i].x;
         notebb[i].y = symbols[k].rect.y + notebb[i].y;
