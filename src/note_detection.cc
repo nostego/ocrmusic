@@ -19,11 +19,29 @@ bool isnote(cv::Mat& img,
 {
   bool hasverticalline = false;
   bool is_sharp = false;
+  bool is_heighnote = false;
 
   int first_line_x = -1;
 
   float diff = (float) img.size().height / (float) img.size().width;
   bool isWhite = img.at<uchar>(img.size().height / 2, img.size().width / 2) == 0;
+
+  // FIXME: improve it, detect a stair shape.
+  for (int y = 0; y < img.size().height; ++y)
+  {
+    unsigned int horipix = 0;
+    for (int x = 0; x < img.size().width; ++x)
+    {
+      if (img.at<uchar>(y, x) != 0)
+        ++horipix;
+    }
+    if (horipix >= 0.8 * piste_height)
+    {
+      for (int x = 0; x < img.size().width; ++x)
+        img.at<uchar>(y, x) = 0;
+      is_heighnote = true;
+    }
+  }
 
   for (int x = 0; x < img.size().width; ++x)
   {
@@ -43,20 +61,14 @@ bool isnote(cv::Mat& img,
       hasverticalline = true;
       for (int y = 0; y < img.size().height; ++y)
         img.at<uchar>(y, x) = 0;
-
-      // FIXME: adapt it according to the height of note.
-      /*IplImage src(img);
-      IplConvKernel *kernel;
-      kernel = cvCreateStructuringElementEx(5, 5, 2, 2, CV_SHAPE_ELLIPSE);
-      cvErode(&src,&src,kernel, 1);
-      cvDilate(&src,&src,kernel, 1);*/
     }
   }
+
   //if (is_sharp)
   //  display(img, 70);
 
   // FIXME: adapt it according to the height of note.
-  return (((isWhite && abs(diff) < 3) || (diff >= 2.75 || hasverticalline)) && !is_sharp);
+  return (((isWhite && abs(diff) < 3) || (diff >= 2.75 || hasverticalline)) && !is_sharp || is_heighnote);
 }
 
 void analyse_note(cv::Mat& img,
@@ -221,10 +233,9 @@ void detect_notes(cv::Mat& img,
       for (unsigned int i = 0; i < notebb.size(); ++i)
       {
         double area = notebb[i].width * notebb[i].height;
-        if (area < 5 || notebb[i].height >= step_size * 1.5)
-        {
+        // Remove little + too long squares.
+        if (area < 5 || notebb[i].height >= step_size * 1.5 || notebb[i].width / notebb[i].height > 2)
           continue;
-        }
 
         notebb[i].x = symbols[k].rect.x + notebb[i].x;
         notebb[i].y = symbols[k].rect.y + notebb[i].y;
