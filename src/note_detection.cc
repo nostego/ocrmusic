@@ -38,9 +38,8 @@ bool isnote(cv::Mat& img,
       if (first_line_x == -1)
         first_line_x = x;
       else
-        is_sharp = abs(x - first_line_x) > (img.size().width / 2);
+        is_sharp = abs(x - first_line_x) > (img.size().width / 3);
 
-      //display(img, 70);
       hasverticalline = true;
       for (int y = 0; y < img.size().height; ++y)
         img.at<uchar>(y, x) = 0;
@@ -53,6 +52,8 @@ bool isnote(cv::Mat& img,
       cvDilate(&src,&src,kernel, 1);*/
     }
   }
+  //if (is_sharp)
+  //  display(img, 70);
 
   // FIXME: adapt it according to the height of note.
   return (((isWhite && abs(diff) < 3) || (diff >= 2.75 || hasverticalline)) && !is_sharp);
