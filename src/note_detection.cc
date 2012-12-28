@@ -86,7 +86,7 @@ void analyse_note(cv::Mat& img,
   double ypiste = 0;
   unsigned int mid = y + note.size().height / 2;
 
-  for (size_t k = 4; k < lines.size(); k += 5)
+  for (size_t k = 4; k < lines.size(); k += 6)
   {
     if (mid < lines[k].y)
     {
@@ -95,6 +95,10 @@ void analyse_note(cv::Mat& img,
     }
   }
   n.octave = (int)((ypiste - mid) / piste_height);
+  if (n.octave == 2)
+  {
+    std::cout << ypiste << " " << mid << " " << piste_height << std::endl;
+  }
   CvFont font;
   double hScale = 1.0;
   double vScale = 1.0;
