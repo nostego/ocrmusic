@@ -76,19 +76,38 @@ std::vector<Line> detect_lines(cv::Mat& img,
                                                         ret.size().height / 2), 0.0, 1);
 
     std::cout << "Image may be rotated" << std::endl;
+    std::cout << "Evalrot was = " << evalrot << std::endl;
+
+    double best_angle = 0.0;
+    int max_line = 0;
     cv::Mat rotated(ret.clone());
-    for (double angle = -5.5; angle <= -5.0; angle += 0.1)
+    evalrot = 10;
+    for (double angle = evalrot - 3;
+	 angle <= evalrot + 3;
+	 angle += 0.05)
     {
       rot_mat = cv::getRotationMatrix2D(cv::Point(ret.size().width / 2,
-                                                  ret.size().height / 2), angle, 1);
+                                                  ret.size().height / 2),
+					angle, 1);
       cv::warpAffine(ret, rotated, rot_mat, ret.size(), cv::INTER_CUBIC);
       get_raw_lines(mylines, rotated, max_rot, 1);
       filter_lines(mylines, img.size().height);
       if (mylines.size() > 0)
       {
-        break;
+	if (max_line < mylines.size())
+	  {
+	    max_line = mylines.size();
+	    best_angle = angle;
+	    //break;
+	  }
+	    //std::cout << "Angle = " << angle << std::endl;
+	    //break;
       }
     }
+    std::cout << "best angle = " << best_angle << std::endl;
+    rot_mat = cv::getRotationMatrix2D(cv::Point(ret.size().width / 2,
+						ret.size().height / 2),
+				      best_angle, 1);
 
     cv::Mat dst(img.clone());
     cv::warpAffine(img, dst, rot_mat, img.size(),
@@ -191,6 +210,8 @@ double get_raw_lines(std::vector<Line>& mylines,
                      bool is_rot)
 {
   std::vector<Vec2f> lines;
+  double ret = 0.0;
+  int best_energy = 0.0;
 
   HoughLines(img, lines, 1, CV_PI / 180.0, 10);
   for (size_t i = 0; i < lines.size(); ++i)
@@ -215,13 +236,18 @@ double get_raw_lines(std::vector<Line>& mylines,
 
         n.y = lines[i][0];
         n.h = 1;
+	if (best_energy < energy)
+	  {
+	    ret = lines[i][1];
+	    best_energy = energy;
+	  }
         n.angle = is_rot;
         mylines.push_back(n);
       }
     }
   }
 
-  return 0.0;
+  return (ret * 180.0) / M_PI - 90.0;
 }
 
 void display_lines(cv::Mat& img,
@@ -231,7 +257,7 @@ void display_lines(cv::Mat& img,
   int thick = 1;
 
   if ((mylines.size() > 0) && (mylines[0].angle))
-    thick = 3;
+    thick = 1;
   for (size_t i = 0; i < mylines.size(); ++i)
   {
     Vec4i l;

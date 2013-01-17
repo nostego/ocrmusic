@@ -8,6 +8,7 @@ void symboldetection_preprocess(cv::Mat& img,
 {
   cv::cvtColor(img, ret, CV_RGB2GRAY);
   cv::threshold(ret, ret, 195.0, 255.0, cv::THRESH_BINARY_INV);
+  display(ret, 600);
   (void)lines;
 }
 
@@ -144,6 +145,10 @@ void dispatch_keys(std::vector<Piste>& pistes,
 
     for (size_t i = 0; i < symbols.size(); ++i)
     {
+      //std::cout << "ping" << std::endl;
+      (void)collide(symbols[i].rect, pistes[k]);
+      //std::cout << "pong" << std::endl;
+
       if (collide(symbols[i].rect, pistes[k]) &&
           (min > symbols[i].rect.x))
       {
@@ -151,6 +156,7 @@ void dispatch_keys(std::vector<Piste>& pistes,
         imin = i;
       }
     }
+
     keys.push_back(symbols[imin]);
     symbols.erase(symbols.begin() + imin);
   }
@@ -203,9 +209,21 @@ std::vector<cv::Rect> get_symbols_rect(cv::Mat& ret,
   std::vector<cv::Rect> symbols_rect;
 
   remove_pistes(ret, pistes_rect);
+  display(ret, 600);
   remove_lines(ret, lines);
+  display(ret, 600);
   symbols_rect = get_bounding_box(ret);
+  cv::Mat tmptmp(ret.clone());
+  cv::cvtColor(tmptmp, tmptmp, CV_GRAY2RGB);
+  display_rect(tmptmp, symbols_rect, 0xff0000);
+  display(tmptmp, 600);
   filter_bbox(symbols_rect, lines, pistes_rect);
+
+  tmptmp = ret.clone();
+  cv::cvtColor(tmptmp, tmptmp, CV_GRAY2RGB);
+  display_rect(tmptmp, symbols_rect, 0xff0000);
+  display(tmptmp, 600);
+
   return symbols_rect;
 }
 
@@ -265,7 +283,7 @@ void detect_symbols(cv::Mat& img,
   symboldetection_preprocess(img, ret, lines);
   pistes_rect = get_piste_rect(lines, ret);
   symbols_rect = get_symbols_rect(ret, lines, pistes_rect);
-
+  
   for (size_t k = 0; k < symbols_rect.size(); ++k)
   {
     Symbol s;

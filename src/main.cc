@@ -36,7 +36,9 @@ int main(int argc, char** argv)
       max_rot = 0.001;
 
     lines = detect_lines(img, max_rot);
-
+    cv::Mat tmpdis(img.clone());
+    display_lines(tmpdis, lines, 0xff0000);
+    display(tmpdis, 600);
     if (lines.size() > 4)
     {
       detect_symbols(img, lines, symbols, pistes);
@@ -65,7 +67,7 @@ int main(int argc, char** argv)
       Ocr ocr (&img, keys, pistes);
     }
     musicxml("test.xml", notes, pistes);
-    display(img, 1200);
+    display(img, 600);
     imwrite("output.png", img);
   }
   return 0;
